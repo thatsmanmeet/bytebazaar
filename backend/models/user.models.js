@@ -21,13 +21,15 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       select: false,
     },
-    address: {
-      city: String,
-      state: String,
-      house: String,
-      country: String,
-      zipcode: String,
-    },
+    address: [
+      {
+        city: String,
+        state: String,
+        house: String,
+        country: String,
+        zipcode: String,
+      },
+    ],
     role: {
       type: String,
       enum: {
@@ -37,9 +39,24 @@ const userSchema = new mongoose.Schema(
     },
     refreshToken: String,
     sellerInfo: {
-      businessName: { type: String, required: true },
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
+      businessName: {
+        type: String,
+        required: function () {
+          return this.role === 'seller';
+        },
+      },
+      email: {
+        type: String,
+        required: function () {
+          return this.role === 'seller';
+        },
+      },
+      phone: {
+        type: String,
+        required: function () {
+          return this.role === 'seller';
+        },
+      },
       website: { type: String },
       location: { type: String },
     },

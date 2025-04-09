@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import { connectDB } from './db/dbConnect.js';
+import userRouter from './routes/user.routes.js';
 dotenv.config();
 
 const port = process.env.PORT || 8003;
@@ -43,8 +44,14 @@ app.use(
 app.use(helmet());
 app.use(hpp());
 
+// request middlewares
+app.use(express.json({ limit: '50kb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 // connect the database and put routes...
 connectDB();
+app.use('/api/v1/users', userRouter);
 if (process.env.NODE_ENV === 'production') {
   // TODO
 } else {
@@ -54,11 +61,6 @@ if (process.env.NODE_ENV === 'production') {
       .json({ status: 'OK', message: 'Development server is running...' });
   });
 }
-
-// request middlewares
-app.use(express.json({ limit: '50kb' }));
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 // 404 Handler (always at the bottom)
 app.use((req, res) => {
