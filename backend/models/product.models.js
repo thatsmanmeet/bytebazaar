@@ -7,23 +7,17 @@ const productSchema = new mongoose.Schema(
       trim: true,
       required: [true, 'Product name is required.'],
     },
-    description: {
+    content: {
       type: String,
       trim: true,
       required: [true, 'Product description is required.'],
     },
-    features: [
-      {
-        name: { type: String, trim: true },
-        description: { type: String, trim: true },
-      },
-    ],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
       required: [true, 'Product Category is required.'],
     },
-    Stock: {
+    stock: {
       type: Number,
       min: 0,
       required: [true, 'Product Stock is required.'],
@@ -51,6 +45,14 @@ const productSchema = new mongoose.Schema(
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+    },
+    numReviews: {
+      type: Number,
+      default: 0,
+    },
+    rating: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
