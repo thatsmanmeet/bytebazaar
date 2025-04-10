@@ -87,7 +87,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
   const deletedProduct = await product.deleteOne();
 
-  if (!deleteProduct) {
+  if (!deletedProduct) {
     throw new APIError(401, 'Something went wrong while deleting the product');
   }
 
