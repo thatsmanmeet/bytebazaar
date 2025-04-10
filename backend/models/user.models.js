@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const addressSchema = new mongoose.Schema({
+  city: String,
+  state: String,
+  house: String,
+  country: String,
+  zipcode: String,
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -21,15 +29,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       select: false,
     },
-    address: [
-      {
-        city: String,
-        state: String,
-        house: String,
-        country: String,
-        zipcode: String,
-      },
-    ],
+    address: [addressSchema],
     role: {
       type: String,
       enum: {
@@ -57,8 +57,25 @@ const userSchema = new mongoose.Schema(
           return this.role === 'seller';
         },
       },
-      website: { type: String },
-      location: { type: String },
+      website: {
+        type: String,
+      },
+      location: {
+        type: String,
+        required: function () {
+          return this.role === 'seller';
+        },
+      },
+      description: {
+        type: String,
+      },
+      isVerified: {
+        type: Boolean,
+        default: false,
+      },
+      businessIcon: {
+        type: String,
+      },
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }

@@ -25,7 +25,6 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
     }
 
     // find user
-
     const user = await User.findById(decodedToken._id);
 
     if (!user) {
