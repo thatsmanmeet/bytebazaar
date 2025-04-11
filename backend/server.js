@@ -13,6 +13,7 @@ import productRouter from './routes/product.routes.js';
 import categoryRouter from './routes/category.routes.js';
 import uploadRouter from './routes/upload.routes.js';
 import cartRouter from './routes/cart.routes.js';
+import orderRouter from './routes/order.routes.js';
 dotenv.config();
 
 const port = process.env.PORT || 8003;
@@ -59,6 +60,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/category', categoryRouter);
 app.use('/api/v1/cart', cartRouter);
+app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/uploads', uploadRouter);
 if (process.env.NODE_ENV === 'production') {
   // TODO

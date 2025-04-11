@@ -17,6 +17,13 @@ const orderSchema = new mongoose.Schema(
       country: { type: String, required: true },
       zipcode: { type: String, required: true },
     },
+    isCancelled: {
+      type: Boolean,
+      default: false,
+    },
+    cancelMessage: {
+      type: String,
+    },
     paymentMethod: {
       type: String,
       enum: {
