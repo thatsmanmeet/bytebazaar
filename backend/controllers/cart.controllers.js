@@ -99,6 +99,10 @@ const updateMyCart = asyncHandler(async (req, res) => {
     throw new APIError(404, 'Invalid product ID found');
   }
 
+  if (doesProductExists.stock <= quantity) {
+    throw new APIError(401, 'Not enought stock');
+  }
+
   // check if product already exists in the cart or not
 
   const existingItem = cart.items.find(
