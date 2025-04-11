@@ -7,7 +7,9 @@ import validator from 'validator';
 
 // get all items in cart
 const getAllCartItems = asyncHandler(async (req, res) => {
-  const cart = await Cart.findOne({ user: req.user._id });
+  const cart = await Cart.findOne({ user: req.user._id }).populate(
+    'items.product'
+  );
   if (!cart) {
     return res.status(200).json(new APIResponse(200, 'Cart is Empty', []));
   }
@@ -40,6 +42,10 @@ const addToCart = asyncHandler(async (req, res) => {
 
   if (!doesProductExists) {
     throw new APIError(404, 'Invalid product ID found');
+  }
+
+  if (doesProductExists.stock <= quantity) {
+    throw new APIError(401, 'Not enought stock');
   }
 
   // check if product already exists in the cart or not
