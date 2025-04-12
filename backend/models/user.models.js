@@ -77,6 +77,16 @@ const userSchema = new mongoose.Schema(
         type: String,
       },
     },
+    forgetPasswordToken: String,
+    forgetPasswordExpiry: String,
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      select: false,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

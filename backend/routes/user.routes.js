@@ -13,8 +13,14 @@ import {
   updateUserAddress,
   deleteUserAddress,
   refreshUserTokens,
+  generateResetPasswordToken,
+  resetPassword,
+  generateTwoFactorCode,
+  verifyTwoFactorCode,
+  disableTwoFactorAuthentication,
 } from '../controllers/user.controllers.js';
 import { authMiddleware } from '../middlewares/authmiddleware.js';
+import { resetPasswordMiddleware } from '../middlewares/resetpasswordmiddleware.js';
 
 const router = express.Router();
 
@@ -37,4 +43,11 @@ router
   .route('/profile/seller')
   .post(authMiddleware, becomeSeller)
   .patch(authMiddleware, updateSellerInfo);
+
+router.post('/refreshToken', refreshUserTokens);
+router.post('/forgotpassword', generateResetPasswordToken);
+router.post('/resetpassword/:token', resetPasswordMiddleware, resetPassword);
+router.post('/2fa/enable', authMiddleware, generateTwoFactorCode);
+router.post('/2fa/verify', authMiddleware, verifyTwoFactorCode);
+router.post('/2fa/disable', authMiddleware, disableTwoFactorAuthentication);
 export default router;
