@@ -9,8 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
-import { Button } from '@/components/ui/button';
-import { FaCartShopping, FaCrown, FaMoon, FaSun } from 'react-icons/fa6';
+import { FaCartShopping, FaCircleUser } from 'react-icons/fa6';
 import { useLogoutMutation } from '@/slices/userApiSlice';
 import { removeCredentialsOnLogout } from '@/slices/authSlice';
 
@@ -43,7 +42,7 @@ const Navbar = () => {
       <div className='flex flex-col text-xl text-slate-600 font-semibold'>
         <span>ByteBazaar</span>
       </div>
-      <div className='mr-3 flex items-center gap-3'>
+      <div className='mr-3 flex items-center gap-5'>
         <Link to='/cart'>
           <FaCartShopping size={24} color='#333' />
         </Link>
@@ -71,7 +70,7 @@ const Navbar = () => {
           </DropdownMenu>
         ) : (
           <Link to='/login'>
-            <Button className='text-black'>Login</Button>
+            <FaCircleUser size={24} color='#333' />
           </Link>
         )}
       </div>
