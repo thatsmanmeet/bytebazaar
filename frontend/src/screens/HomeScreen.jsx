@@ -1,5 +1,5 @@
-import Navbar from '@/components/Navbar';
-import { useGetAllCategoriesQuery } from '@/slices/categoryApiSlice';
+import Navbar from '../components/Navbar';
+import { useGetAllCategoriesQuery } from '../slices/categoryApiSlice';
 import React from 'react';
 import { ClipLoader } from 'react-spinners';
 

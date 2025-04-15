@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/constants';
+import { BASE_URL } from '../constants';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { removeCredentialsOnLogout } from './authSlice';
 
@@ -14,6 +14,7 @@ async function baseQueryWithAuth(args, api, extra) {
   ) {
     api.dispatch(removeCredentialsOnLogout());
   }
+  return result;
 }
 
 export const apiSlice = createApi({
@@ -27,5 +28,5 @@ export const apiSlice = createApi({
     'Category',
     'Reviews',
   ],
-  endpoints: (builder) => ({}),
+  endpoints: () => ({}),
 });

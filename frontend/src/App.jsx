@@ -1,11 +1,12 @@
+import React from 'react';
 import { Outlet } from 'react-router';
 
-function App() {
+const App = () => {
   return (
-    <div className='w-full h-screen'>
+    <div>
       <Outlet />
     </div>
   );
-}
+};
 
 export default App;

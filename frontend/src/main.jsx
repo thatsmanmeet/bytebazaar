@@ -5,9 +5,9 @@ import App from './App.jsx';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Provider } from 'react-redux';
 import store from './store.js';
-import { Toaster } from 'react-hot-toast';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
+import { Toaster } from 'react-hot-toast';
 
 const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />
+      <Toaster />
     </Provider>
-    <Toaster />
   </StrictMode>
 );

@@ -1,4 +1,4 @@
-import { CART_URL } from '@/constants';
+import { CART_URL } from '../constants';
 import { apiSlice } from './apiSlice';
 
 const cartApiSlice = apiSlice.injectEndpoints({

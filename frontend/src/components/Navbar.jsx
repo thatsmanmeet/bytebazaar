@@ -3,15 +3,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '../components/ui/dropdown-menu';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { FaCartShopping, FaCircleUser } from 'react-icons/fa6';
-import { useLogoutMutation } from '@/slices/userApiSlice';
-import { removeCredentialsOnLogout } from '@/slices/authSlice';
+import { useLogoutMutation } from '../slices/userApiSlice';
+import { removeCredentialsOnLogout } from '../slices/authSlice';
 
 const Navbar = () => {
   const { userInfo } = useSelector((store) => store.auth);

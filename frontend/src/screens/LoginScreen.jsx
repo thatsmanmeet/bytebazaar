@@ -1,13 +1,13 @@
-import { setCredentialsOnLogin } from '@/slices/authSlice';
-import { useLoginMutation } from '@/slices/userApiSlice';
+import { setCredentialsOnLogin } from '../slices/authSlice';
+import { useLoginMutation } from '../slices/userApiSlice';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
 import validator from 'validator';
 import { FaUserLock, FaRegEnvelope, FaLock } from 'react-icons/fa6';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
 import { ClipLoader } from 'react-spinners';
 
 const LoginScreen = () => {
