@@ -178,9 +178,13 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new APIError(401, 'Invalid Email or Password');
   }
 
+  console.log('2FA: ', twoFactorToken);
+
   if (user.twoFactorEnabled) {
-    if (!twoFactorToken) {
-      throw new APIError(401, '2FA token is required.');
+    if (!twoFactorToken || twoFactorToken === '') {
+      return res
+        .status(200)
+        .json(new APIResponse(200, '2FA Token is required', { token: true }));
     }
 
     // verify token

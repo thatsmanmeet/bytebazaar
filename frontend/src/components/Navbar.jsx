@@ -44,7 +44,7 @@ const Navbar = () => {
       </div>
       <div className='mr-3 flex items-center gap-5'>
         <Link to='/cart'>
-          <FaCartShopping size={24} color='#333' />
+          <FaCartShopping size={30} color='#333' />
         </Link>
         {userInfo !== null ? (
           <DropdownMenu>
@@ -70,7 +70,7 @@ const Navbar = () => {
           </DropdownMenu>
         ) : (
           <Link to='/login'>
-            <FaCircleUser size={24} color='#333' />
+            <FaCircleUser size={30} color='#333' />
           </Link>
         )}
       </div>

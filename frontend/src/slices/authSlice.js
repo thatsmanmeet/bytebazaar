@@ -12,7 +12,8 @@ const authSlice = createSlice({
   reducers: {
     setCredentialsOnLogin: (state, action) => {
       state.userInfo = action.payload;
-      localStorage.setItem('userInfo', action.payload);
+      console.log('CHECk', action.payload);
+      localStorage.setItem('userInfo', JSON.stringify(action.payload));
     },
     removeCredentialsOnLogout: (state) => {
       state.userInfo = null;

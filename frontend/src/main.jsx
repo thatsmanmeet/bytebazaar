@@ -8,6 +8,7 @@ import store from './store.js';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import { Toaster } from 'react-hot-toast';
+import '@smastrom/react-rating/style.css';
 
 const router = createBrowserRouter([
   {

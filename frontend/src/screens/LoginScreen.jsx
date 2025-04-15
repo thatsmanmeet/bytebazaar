@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
 import validator from 'validator';
 import { FaUserLock, FaRegEnvelope, FaLock } from 'react-icons/fa6';
+import { TbBrandAuth0 } from 'react-icons/tb';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { ClipLoader } from 'react-spinners';
@@ -14,6 +15,8 @@ const LoginScreen = () => {
   const [login, { isLoading: isLoggingIn }] = useLoginMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
+  const [isTokenRequired, setIsTokenRequired] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -29,12 +32,27 @@ const LoginScreen = () => {
       return;
     }
 
+    if (isTokenRequired && !token) {
+      toast.error('Token is required');
+      return;
+    }
+
     try {
-      const res = await login({ email, password }).unwrap();
+      const res = await login({
+        email,
+        password,
+        twoFactorToken: token,
+      }).unwrap();
       console.log(res);
-      dispatch(setCredentialsOnLogin(res));
+
+      if (res.data.token === true) {
+        setIsTokenRequired(true);
+        return;
+      }
+      dispatch(setCredentialsOnLogin(res.data));
       toast.success('Login Sucessful');
       navigate('/');
+      console.log(res);
     } catch (error) {
       toast.error(
         error?.data?.message ||
@@ -45,7 +63,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <div className='flex justify-center items-center w-full h-screen bg-white dark:bg-slate-800 sm:bg-slate-300 sm:dark:bg-slate-800'>
+    <div className='flex justify-center items-center w-full h-screen bg-white dark:bg-slate-800'>
       <div className='w-[480px] flex flex-col justify-center gap-2 p-5 bg-white dark:bg-slate-800 sm:dark:bg-slate-700 rounded-xl'>
         <div className='m-2 flex flex-col justify-center items-center gap-1'>
           <div className='w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-500 flex justify-center items-center'>
@@ -65,7 +83,12 @@ const LoginScreen = () => {
               type='email'
               placeholder='Email Address'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                if (isTokenRequired) {
+                  setIsTokenRequired(false);
+                }
+                setEmail(e.target.value);
+              }}
               className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
             />
           </div>
@@ -79,10 +102,22 @@ const LoginScreen = () => {
               className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
             />
           </div>
+          {isTokenRequired && (
+            <div className='relative w-full'>
+              <TbBrandAuth0 className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                type='number'
+                placeholder='2FA Token'
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
+              />
+            </div>
+          )}
           <p className='text-sm dark:text-white'>
             Don&apos;t have an account?{' '}
             <Link className='text-blue-400' to='/register'>
-              Create One
+              create new account
             </Link>
           </p>
           <Button
