@@ -53,6 +53,8 @@ app.use(hpp());
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // connect the database and put routes...
 connectDB();

@@ -2,10 +2,10 @@ node_modules
 frontend/node_modules
 
 .env
-uploads/*.png
-uploads/*.jpg
-uploads/*.jpeg
-uploads/*.webp
-uploads/*.avif
-uploads/*.gif
+uploads/images-*.png
+uploads/images-*.jpg
+uploads/images-*.jpeg
+uploads/images-*.webp
+uploads/images-*.avif
+uploads/images-*.gif
 

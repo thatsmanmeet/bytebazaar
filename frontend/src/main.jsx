@@ -5,12 +5,25 @@ import App from './App.jsx';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Provider } from 'react-redux';
 import store from './store.js';
+import { Toaster } from 'react-hot-toast';
+import HomeScreen from './screens/HomeScreen';
+import LoginScreen from './screens/LoginScreen';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
-    children: [],
+    children: [
+      {
+        path: '/',
+        element: <HomeScreen />,
+        index: true,
+      },
+      {
+        path: '/login',
+        element: <LoginScreen />,
+      },
+    ],
   },
 ]);
 
@@ -19,5 +32,6 @@ createRoot(document.getElementById('root')).render(
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
+    <Toaster />
   </StrictMode>
 );
