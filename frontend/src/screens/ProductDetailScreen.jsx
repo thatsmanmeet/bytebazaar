@@ -1,0 +1,171 @@
+import Navbar from '@/components/Navbar';
+import ReviewCard from '@/components/ReviewCard';
+import { Progress } from '@/components/ui/progress';
+import {
+  useGetProductByIdQuery,
+  useGetProductReviewsQuery,
+} from '@/slices/productApiSlice';
+import { Rating } from '@smastrom/react-rating';
+import React, { useEffect, useState } from 'react';
+import { FaCartShopping } from 'react-icons/fa6';
+import { useParams } from 'react-router';
+import { ClipLoader } from 'react-spinners';
+
+function ProductDetailScreen() {
+  const { id: productId } = useParams();
+  const {
+    data: productResponse,
+    isLoading,
+    error,
+  } = useGetProductByIdQuery(productId);
+
+  const {
+    data: reviewsResponse,
+    isLoading: isReviewsLoading,
+    error: reviewsError,
+  } = useGetProductReviewsQuery(productId);
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    if (!isLoading && !error) {
+      setSelectedImage(productResponse.data.images[0]);
+    }
+  }, [isLoading, error, productResponse]);
+
+  if (isLoading || isReviewsLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-screen min-w-full'>
+        <ClipLoader size={50} />
+      </div>
+    );
+  }
+
+  if (error || reviewsError) {
+    return (
+      <div className='flex items-center justify-center min-h-screen min-w-full'>
+        <p>{error?.data?.message || error?.message || error?.error}</p>
+      </div>
+    );
+  }
+
+  const totalReviews = reviewsResponse.data.length;
+  const ratingCounts = {
+    5: reviewsResponse.data.filter((review) => review.score === 5).length,
+    4: reviewsResponse.data.filter((review) => review.score === 4).length,
+    3: reviewsResponse.data.filter((review) => review.score === 3).length,
+    2: reviewsResponse.data.filter((review) => review.score === 2).length,
+    1: reviewsResponse.data.filter((review) => review.score === 1).length,
+  };
+
+  return (
+    <div className='min-h-screen w-full'>
+      <Navbar />
+      <div className='p-5'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+          <div className='flex flex-col items-center overflow-hidden '>
+            <img
+              src={selectedImage}
+              className='w-full sm:w-[80%] rounded-md mt-10 mb-5 '
+              alt=''
+            />
+            <div className='p-5 flex rounded-md items-center overflow-y-hidden overflow-x-scroll gap-3 '>
+              {productResponse.data.images.map((image) => (
+                <div
+                  onClick={() => {
+                    setSelectedImage(image);
+                  }}
+                  className={`w-32 border-2 cursor-pointer rounded-md p-1 ${
+                    selectedImage === image
+                      ? 'border-blue-500'
+                      : 'border-gray-300'
+                  }`}
+                  key={image}
+                >
+                  <img src={image} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className='p-2 flex flex-col w-full lg:max-w-xl mx-auto'>
+            <div className='mt-10 mb-2 font-semibold'>
+              {productResponse.data.brand}
+            </div>
+            <div>
+              <h2 className='text-xl sm:text-2xl font-bold'>
+                {productResponse.data.name}
+              </h2>
+              <div className='flex items-center gap-3 mt-1'>
+                <Rating
+                  value={productResponse.data.rating}
+                  readOnly
+                  style={{ maxWidth: '100px' }}
+                />
+                <span className='text-slate-600'>
+                  {productResponse.data.numReviews} Reviews
+                </span>
+                <p className='text-slate-600 text-md'>
+                  Stocks:{' '}
+                  {productResponse.data.stock > 0
+                    ? productResponse.data.stock
+                    : 'Out Of Stock'}
+                </p>
+              </div>
+            </div>
+            <div className='mt-4'>
+              <p className='text-3xl font-bold'>
+                &#8377;{productResponse.data.price}
+              </p>
+            </div>
+            <div className='mt-5'>
+              <h3 className='font-bold'>About this Item:</h3>
+              <p>{productResponse.data.content}</p>
+            </div>
+            <button className='mt-12 px-0 py-3 rounded-lg bg-black text-white flex items-center gap-3 justify-center cursor-pointer'>
+              <FaCartShopping />
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 mt-5 gap-5'>
+          <div>
+            <h3 className='text-xl font-semibold mb-4 order-last sm:order-first ml-2'>
+              Customer Reviews
+            </h3>
+            {reviewsResponse.data
+              .filter((review) => review.comment !== undefined)
+              .map((review) => (
+                <ReviewCard review={review} key={review._id} />
+              ))}
+          </div>
+          <div className='flex flex-col gap-3 p-5 rounded-lg order-first sm:order-last w-full md:max-w-xl mx-auto bg-gray-100'>
+            <h3 className='text-xl font-semibold mb-1'>
+              Average Rating: {productResponse.data.rating}
+            </h3>
+            <Rating
+              value={productResponse.data.rating}
+              style={{ maxWidth: '200px' }}
+              readOnly
+            />
+            <div>
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = ratingCounts[star];
+                const percent =
+                  totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+                return (
+                  <div key={star} className='w-full flex items-center gap-5'>
+                    <span>{star} Stars</span>
+                    <Progress value={percent} className='w-64 md:w-80' />
+                    <span>({count})</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ProductDetailScreen;

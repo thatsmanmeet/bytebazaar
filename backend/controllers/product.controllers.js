@@ -96,7 +96,10 @@ const deleteProduct = asyncHandler(async (req, res) => {
     .json(new APIResponse(200, 'Product deleted successfully'));
 });
 const getReviews = asyncHandler(async (req, res) => {
-  const reviews = await Review.find({ product: req.params.id });
+  const reviews = await Review.find({ product: req.params.id }).populate(
+    'user',
+    'name'
+  );
   return res.status(200).json(new APIResponse(200, 'Reviews fetched', reviews));
 });
 const createReview = asyncHandler(async (req, res) => {

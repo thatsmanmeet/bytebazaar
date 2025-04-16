@@ -39,8 +39,10 @@ const Navbar = () => {
 
   return (
     <div className='w-full p-5 flex items-center justify-between'>
-      <div className='flex flex-col text-xl text-slate-600 font-semibold'>
-        <span>ByteBazaar</span>
+      <div className='flex flex-col text-xl text-black font-semibold'>
+        <Link to={'/'}>
+          <span>ByteBazaar</span>
+        </Link>
       </div>
       <div className='mr-3 flex items-center gap-5'>
         <Link to='/cart'>

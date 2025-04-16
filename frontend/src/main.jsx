@@ -9,6 +9,7 @@ import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import { Toaster } from 'react-hot-toast';
 import '@smastrom/react-rating/style.css';
+import ProductDetailScreen from './screens/ProductDetailScreen';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: '/login',
         element: <LoginScreen />,
+      },
+      {
+        path: '/product/:id',
+        element: <ProductDetailScreen />,
       },
     ],
   },
