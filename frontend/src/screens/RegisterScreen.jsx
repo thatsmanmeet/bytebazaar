@@ -1,28 +1,25 @@
-import { setCredentialsOnLogin } from '../slices/authSlice';
-import { useLoginMutation } from '../slices/userApiSlice';
+import { useRegisterMutation } from '../slices/userApiSlice';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
 import validator from 'validator';
-import { FaUserLock, FaRegEnvelope, FaLock } from 'react-icons/fa6';
+import { FaUserLock, FaRegEnvelope, FaLock, FaUser } from 'react-icons/fa6';
 import { TbBrandAuth0 } from 'react-icons/tb';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { ClipLoader } from 'react-spinners';
 
-const LoginScreen = () => {
-  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
+const RegisterScreen = () => {
+  const [register, { isLoading: isRegistering }] = useRegisterMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState('');
-  const [isTokenRequired, setIsTokenRequired] = useState(false);
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const loginHandler = async (e) => {
+  const registerHandler = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!email || !password || !name || !confirmPassword) {
       toast.error('All fields are required');
       return;
     }
@@ -32,32 +29,31 @@ const LoginScreen = () => {
       return;
     }
 
-    if (isTokenRequired && !token) {
-      toast.error('Token is required');
+    if (confirmPassword !== password) {
+      toast.error("Passwords don't match");
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error('Password must have minimum length of 8 characters.');
       return;
     }
 
     try {
-      const res = await login({
+      const res = await register({
+        name,
         email,
         password,
-        twoFactorToken: token,
+        confirmPassword,
       }).unwrap();
       console.log(res);
-
-      if (res.data.token === true) {
-        setIsTokenRequired(true);
-        return;
-      }
-      dispatch(setCredentialsOnLogin(res.data));
-      toast.success('Login Sucessful');
-      navigate('/');
-      // console.log(res);
+      toast.success('Account Created Sucessfully.');
+      navigate('/login');
     } catch (error) {
       toast.error(
         error?.data?.message ||
           error?.error ||
-          'Something went wrong while trying to log in'
+          'Something went wrong while trying to register'
       );
     }
   };
@@ -70,13 +66,25 @@ const LoginScreen = () => {
             <FaUserLock size={32} />
           </div>
           <h2 className='text-3xl font-bold text-center dark:text-white'>
-            Welcome Back
+            Welcome Vistor
           </h2>
           <p className='text-center text-sm'>
-            Sign in to your ByteBazaar account
+            Create your new ByteBazaar account
           </p>
         </div>
-        <form className='p-3 flex flex-col gap-4' onSubmit={loginHandler}>
+        <form className='p-3 flex flex-col gap-4' onSubmit={registerHandler}>
+          <div className='relative w-full'>
+            <FaUser className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              type='text'
+              placeholder='Name'
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+              className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
+            />
+          </div>
           <div className='relative w-full'>
             <FaRegEnvelope className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
             <Input
@@ -84,9 +92,6 @@ const LoginScreen = () => {
               placeholder='Email Address'
               value={email}
               onChange={(e) => {
-                if (isTokenRequired) {
-                  setIsTokenRequired(false);
-                }
                 setEmail(e.target.value);
               }}
               className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
@@ -102,22 +107,20 @@ const LoginScreen = () => {
               className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
             />
           </div>
-          {isTokenRequired && (
-            <div className='relative w-full'>
-              <TbBrandAuth0 className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
-              <Input
-                type='number'
-                placeholder='2FA Token'
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
-              />
-            </div>
-          )}
+          <div className='relative w-full'>
+            <FaLock className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
+            <Input
+              type='password'
+              placeholder='Confirm Password'
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
+            />
+          </div>
           <p className='text-sm dark:text-white'>
-            Don&apos;t have an account?{' '}
-            <Link className='text-blue-400' to='/register'>
-              create new account
+            already have an account?{' '}
+            <Link className='text-blue-400' to='/login'>
+              login
             </Link>
           </p>
           <Button
@@ -125,7 +128,7 @@ const LoginScreen = () => {
             type='submit'
             className='w-full bg-blue-500 hover:bg-blue-600 hover:text-white text-white rounded-xl p-5'
           >
-            {isLoggingIn ? <ClipLoader size={22} color='#666' /> : 'Sign In'}
+            {isRegistering ? <ClipLoader size={22} color='#666' /> : 'Register'}
           </Button>
         </form>
       </div>
@@ -133,4 +136,4 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default RegisterScreen;

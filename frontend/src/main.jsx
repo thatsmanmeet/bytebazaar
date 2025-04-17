@@ -10,6 +10,9 @@ import LoginScreen from './screens/LoginScreen';
 import { Toaster } from 'react-hot-toast';
 import '@smastrom/react-rating/style.css';
 import ProductDetailScreen from './screens/ProductDetailScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import PrivateRoute from './components/PrivateRoute';
+import CartScreen from './screens/CartScreen';
 
 const router = createBrowserRouter([
   {
@@ -26,8 +29,22 @@ const router = createBrowserRouter([
         element: <LoginScreen />,
       },
       {
+        path: '/register',
+        element: <RegisterScreen />,
+      },
+      {
         path: '/product/:id',
         element: <ProductDetailScreen />,
+      },
+      {
+        path: '',
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: '/cart',
+            element: <CartScreen />,
+          },
+        ],
       },
     ],
   },

@@ -3,7 +3,7 @@ import React from 'react';
 
 function ReviewCard({ review }) {
   return (
-    <div className='bg-gray-100 p-5 rounded-lg flex flex-col gap-1 w-full lg:max-w-xl'>
+    <div className='bg-gray-100 p-5 mb-3 rounded-lg flex flex-col gap-1 w-full lg:max-w-xl'>
       <div>
         <p className='text-xl font-bold'>{review.title}</p>
         <Rating style={{ maxWidth: '80px' }} value={review.score} readOnly />
