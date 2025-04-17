@@ -1,5 +1,6 @@
 import React from 'react';
 import { Skeleton } from './ui/skeleton';
+import { Link } from 'react-router';
 
 export const CategoryList = ({ categories, isLoading }) => {
   return (
@@ -15,9 +16,11 @@ export const CategoryList = ({ categories, isLoading }) => {
         ) : (
           categories.map((category) => (
             <div key={category._id}>
-              <span className='text-slate-500 hover:text-slate-800 cursor-pointer'>
-                {category.name}
-              </span>
+              <Link to={`/category/${category._id}`}>
+                <span className='text-slate-500 hover:text-slate-800 cursor-pointer'>
+                  {category.name}
+                </span>
+              </Link>
             </div>
           ))
         )}

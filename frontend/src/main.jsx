@@ -13,6 +13,7 @@ import ProductDetailScreen from './screens/ProductDetailScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import PrivateRoute from './components/PrivateRoute';
 import CartScreen from './screens/CartScreen';
+import CategoryScreen from './screens/CategoryScreen';
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: '/product/:id',
         element: <ProductDetailScreen />,
+      },
+      {
+        path: '/category/:id',
+        element: <CategoryScreen />,
       },
       {
         path: '',
