@@ -43,8 +43,6 @@ function HomeScreen() {
     );
   }
 
-  console.log(productsResponse.data);
-
   return (
     <div className='min-w-screen'>
       <Navbar />

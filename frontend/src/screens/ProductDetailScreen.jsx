@@ -97,9 +97,8 @@ function ProductDetailScreen() {
       return;
     }
     try {
-      console.log({ ...reviewContent });
       const res = await addReview({ ...reviewContent, productId }).unwrap();
-      console.log(res.data);
+      toast.success(res.message);
       reviewRefetch();
     } catch (error) {
       toast.error(
@@ -150,10 +149,10 @@ function ProductDetailScreen() {
       <Navbar />
       <div className='p-5'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-          <div className='flex flex-col items-center overflow-hidden '>
+          <div className='flex flex-col items-center overflow-hidden object-cover mx-auto max-h-fit'>
             <img
               src={selectedImage}
-              className='w-full sm:w-[80%] rounded-md mt-10 mb-5 '
+              className='w-full sm:w-[50%] rounded-md mt-5 mb-2 '
               alt=''
             />
             <div className='p-5 flex rounded-md items-center overflow-y-hidden overflow-x-scroll gap-3 '>

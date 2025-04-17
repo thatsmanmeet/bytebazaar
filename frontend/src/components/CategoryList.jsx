@@ -4,7 +4,7 @@ import { Skeleton } from './ui/skeleton';
 export const CategoryList = ({ categories, isLoading }) => {
   return (
     <div className='w-full'>
-      <div className='px-5 py-2 flex items-center gap-5 overflow-y-hidden overflow-x-scroll'>
+      <div className='px-5 py-4 flex items-center gap-5 overflow-y-hidden overflow-x-scroll'>
         {isLoading ? (
           <>
             <Skeleton className={'h-4 w-8'} />
