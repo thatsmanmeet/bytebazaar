@@ -55,14 +55,17 @@ const Navbar = () => {
                 <AvatarImage
                   src={userInfo.avatar || '/uploads/default.png'}
                   alt='avatar'
+                  className={' rounded-full border-green-800 border-2'}
                 />
                 <AvatarFallback>
-                  {userInfo.name.substr(0, 1) || 'U'}
+                  {userInfo.name.substr(0, 1) || 'A'}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => linkNavigator('/profile')}>
+              <DropdownMenuItem
+                onClick={() => linkNavigator('/profile/account')}
+              >
                 Profile
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logoutHandler}>

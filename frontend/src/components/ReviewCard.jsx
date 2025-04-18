@@ -11,7 +11,6 @@ function ReviewCard({ review }) {
       <p>{review.comment}</p>
       <div className='flex items-center gap-1'>
         <p className='text-gray-500 text-sm'>{review.user.name}</p>
-        {','}
         <p className='text-gray-500 text-sm'>
           {new Date(review.updatedAt || review.createdAt).toDateString()}
         </p>

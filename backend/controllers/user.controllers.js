@@ -41,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const newUser = await User.create({ name, email, password });
 
-  const user = await User.findById(newUser);
+  const user = await User.findById(newUser._id);
 
   if (!user) {
     throw new APIError(400, 'Something went wrong creating a user');
@@ -178,7 +178,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new APIError(401, 'Invalid Email or Password');
   }
 
-  console.log('2FA: ', twoFactorToken);
+  // console.log('2FA: ', twoFactorToken);
 
   if (user.twoFactorEnabled) {
     if (!twoFactorToken || twoFactorToken === '') {
@@ -281,7 +281,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     throw new APIError(400, 'Error updating the user');
   }
 
-  console.log(saveUser);
+  // console.log(saveUser);
 
   return res
     .status(200)
@@ -290,7 +290,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
 // delete profile
 const deleteUserProfile = asyncHandler(async (req, res) => {
-  const { email, password } = await req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     throw new APIError(401, 'All fields are required.');
@@ -322,10 +322,12 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   await Product.deleteMany({ seller: user._id });
 
   // now delete the account
-  await User.deleteOne(user);
+  await User.deleteOne({ _id: user._id });
 
   return res
     .status(200)
+    .clearCookie('accessToken', cookieOptions)
+    .clearCookie('refreshToken', cookieOptions)
     .json(new APIResponse(200, 'Account deleted successfully!'));
 });
 
@@ -334,10 +336,8 @@ const getUserAddress = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   if (!user) throw new APIError(404, 'User not found or not autheticated');
   const addresses = user.address || [];
-
+  // console.log(addresses);
   return res
-    .clearCookie('accessToken', cookieOptions)
-    .clearCookie('refreshToken', cookieOptions)
     .status(200)
     .json(new APIResponse(200, 'Addresses fetched successfully', addresses));
 });
@@ -374,7 +374,7 @@ const updateUserAddress = asyncHandler(async (req, res) => {
     throw new APIError(404, 'User not found or not authenticated');
   }
 
-  const { id, house, state, city, country, zipcode } = req.body;
+  const { id, house, state, city, country, zipcode, isDefault } = req.body;
 
   if (!id) {
     throw new APIError(400, 'No Address ID found');
@@ -395,6 +395,12 @@ const updateUserAddress = asyncHandler(async (req, res) => {
   address.city = city || address.city;
   address.country = country || address.country;
   address.zipcode = zipcode || address.zipcode;
+
+  if (isDefault) {
+    user.address.forEach((addr) => {
+      addr.isDefault = addr._id.equals(id);
+    });
+  }
 
   const savedUser = await user.save({ validateBeforeSave: false });
 

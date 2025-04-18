@@ -74,6 +74,12 @@ const productApiSlice = apiSlice.injectEndpoints({
         method: 'DELETE',
       }),
     }),
+    getMyReviews: builder.query({
+      query: () => ({
+        url: `${PRODUCTS_URL}/myreviews`,
+        method: 'GET',
+      }),
+    }),
     // Upload images
     uploadProductImages: builder.mutation({
       query: (data) => ({
@@ -96,6 +102,7 @@ export const {
   useUpdateProductReviewMutation,
   useDeleteProductReviewMutation,
   useUploadProductImagesMutation,
+  useGetMyReviewsQuery,
 } = productApiSlice;
 
 export default productApiSlice;

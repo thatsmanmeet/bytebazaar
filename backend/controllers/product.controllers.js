@@ -1,7 +1,6 @@
 import { asyncHandler } from '../utils/AsyncHandler.js';
 import { APIError } from '../utils/APIError.js';
 import { APIResponse } from '../utils/APIResponse.js';
-import { User } from '../models/user.models.js';
 import { Product } from '../models/product.models.js';
 import { Review } from '../models/reviews.models.js';
 
@@ -102,6 +101,17 @@ const getReviews = asyncHandler(async (req, res) => {
   );
   return res.status(200).json(new APIResponse(200, 'Reviews fetched', reviews));
 });
+
+const getMyReviews = asyncHandler(async (req, res) => {
+  const reviews = await Review.find({ user: req.user._id }).populate(
+    'product',
+    'name'
+  );
+  return res
+    .status(200)
+    .json(new APIResponse(200, 'User Reviews Fetched', reviews));
+});
+
 const createReview = asyncHandler(async (req, res) => {
   const { title, score, comment } = req.body;
 
@@ -141,7 +151,7 @@ const createReview = asyncHandler(async (req, res) => {
   currProduct.rating =
     allReviews.reduce((acc, review) => acc + review.score, 0) /
     allReviews.length;
-  currProduct.save();
+  await currProduct.save();
 
   return res.status(201).json(new APIResponse(201, 'Review created', review));
 });
@@ -180,7 +190,7 @@ const updateReview = asyncHandler(async (req, res) => {
   currProduct.rating =
     allReviews.reduce((acc, review) => acc + review.score, 0) /
     allReviews.length;
-  currProduct.save();
+  await currProduct.save();
 
   return res.status(201).json(new APIResponse(201, 'Review updated', review));
 });
@@ -198,7 +208,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   const deletedReview = await review.deleteOne();
-  if (!deleteReview) {
+  if (!deletedReview) {
     throw new APIError(401, 'Something went wrong deleting this review');
   }
 
@@ -211,13 +221,19 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   currProduct.numReviews = currProduct.numReviews - 1;
-  currProduct.rating =
-    allReviews.reduce((acc, review) => acc + review.score, 0) /
-    allReviews.length;
-  currProduct.save();
+  if (allReviews.length > 0) {
+    currProduct.rating =
+      allReviews.reduce((acc, review) => acc + review.score, 0) /
+      allReviews.length;
+  } else {
+    currProduct.rating = 0;
+  }
+  await currProduct.save();
 
   return res.status(200).json(new APIResponse(201, 'Review Deleted'));
 });
+
+// product validation failed: rating: Cast to Number failed for value "NaN" (type number) at path "rating"
 
 export {
   getProducts,
@@ -229,4 +245,5 @@ export {
   createReview,
   updateReview,
   deleteReview,
+  getMyReviews,
 };

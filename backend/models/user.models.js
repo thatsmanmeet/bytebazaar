@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const addressSchema = new mongoose.Schema({
+  isDefault: { type: Boolean, default: false },
   city: String,
   state: String,
   house: String,

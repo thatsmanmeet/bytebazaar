@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
   getReviews,
+  getMyReviews,
   createReview,
   updateReview,
   deleteReview,
@@ -18,6 +19,8 @@ router
   .route('/')
   .get(getProducts)
   .post(authMiddleware, sellerMiddleware, createProduct);
+
+router.route('/myreviews').get(authMiddleware, getMyReviews);
 
 router
   .route('/:id')
