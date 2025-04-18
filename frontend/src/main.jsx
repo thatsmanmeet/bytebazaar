@@ -77,7 +77,7 @@ const router = createBrowserRouter([
             element: <OrderScreen />,
           },
           {
-            path: '/profile/seller',
+            path: '/profile/seller/dashboard',
             element: <SellerScreen />,
           },
         ],

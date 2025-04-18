@@ -36,7 +36,7 @@ const items = [
   },
   {
     title: 'Seller',
-    url: '/profile/seller',
+    url: '/profile/seller/dashboard',
     icon: DollarSign,
   },
 ];
