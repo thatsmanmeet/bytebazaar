@@ -9,4 +9,7 @@ uploads/images-*.webp
 uploads/images-*.avif
 uploads/images-*.gif
 
+*.log
+logs
+
 notes.md

@@ -10,6 +10,7 @@ import {
   createReview,
   updateReview,
   deleteReview,
+  getSellerProducts,
 } from '../controllers/product.controllers.js';
 import { authMiddleware } from '../middlewares/authmiddleware.js';
 import { sellerMiddleware } from '../middlewares/sellermiddleware.js';
@@ -21,6 +22,9 @@ router
   .post(authMiddleware, sellerMiddleware, createProduct);
 
 router.route('/myreviews').get(authMiddleware, getMyReviews);
+router
+  .route('/seller')
+  .get(authMiddleware, sellerMiddleware, getSellerProducts);
 
 router
   .route('/:id')

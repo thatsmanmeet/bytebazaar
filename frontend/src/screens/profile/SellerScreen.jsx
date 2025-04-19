@@ -11,8 +11,9 @@ import {
   removeCredentialsOnLogout,
   setCredentialsOnLogin,
 } from '@/slices/authSlice';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import UpdateSellerForm from '@/components/UpdateSellerForm';
+import { FaBox, FaList } from 'react-icons/fa6';
 
 function SellerScreen() {
   const { userInfo } = useSelector((store) => store.auth);
@@ -47,7 +48,6 @@ function SellerScreen() {
     try {
       const res = await updateSellerAPI(data).unwrap();
       const accessToken = userInfo.accessToken;
-      console.log({ ...res.data, accessToken });
       dispatch(setCredentialsOnLogin({ ...res.data, accessToken }));
       toast.success(res.message);
     } catch (error) {
@@ -89,6 +89,26 @@ function SellerScreen() {
           You are now a seller. You can start selling your products on our
           platform.
         </p>
+        <div className='flex flex-col gap-2 my-3'>
+          <Link
+            className='flex items-center gap-2'
+            to={'/profile/seller/products'}
+          >
+            <FaList size={18} className='text-green-700' />
+            <span className='text-blue-600 font-semibold'>
+              Manage your products
+            </span>
+          </Link>
+          <Link
+            className='flex items-center gap-2'
+            to={'/profile/seller/orders'}
+          >
+            <FaBox size={18} className='text-amber-700' />
+            <span className='text-blue-600 font-semibold'>
+              Manage your orders
+            </span>
+          </Link>
+        </div>
         <div className='p-5 flex flex-col gap-3 bg-gray-100 rounded-lg my-3'>
           <h3 className='text-xl font-semibold'>Your Seller Information</h3>
           <div className='flex items-center gap-3'>
@@ -115,20 +135,20 @@ function SellerScreen() {
             <span>Business Location:</span>
             <span>{userInfo.sellerInfo.location}</span>
           </div>
-        </div>
-        <p
-          onClick={() => setUpdateSellerFormOpen((prev) => !prev)}
-          className='text-lg text-blue-600 cursor-pointer'
-        >
-          Update your seller information
-        </p>
+          <p
+            onClick={() => setUpdateSellerFormOpen((prev) => !prev)}
+            className='text-lg text-blue-600 cursor-pointer'
+          >
+            Update your seller information
+          </p>
 
-        <div>
-          {updateSellerFormOpen && (
-            <UpdateSellerForm
-              updateSellerHandler={(data) => updateSellerHandler(data)}
-            />
-          )}
+          <div>
+            {updateSellerFormOpen && (
+              <UpdateSellerForm
+                updateSellerHandler={(data) => updateSellerHandler(data)}
+              />
+            )}
+          </div>
         </div>
       </div>
     </ProfileScreen>

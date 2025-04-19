@@ -3,6 +3,7 @@ import { APIError } from '../utils/APIError.js';
 import { APIResponse } from '../utils/APIResponse.js';
 import { Product } from '../models/product.models.js';
 import { Review } from '../models/reviews.models.js';
+import { Cart } from '../models/cart.models.js';
 
 const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({});
@@ -17,6 +18,14 @@ const getProductById = asyncHandler(async (req, res) => {
   }
   return res.status(200).json(new APIResponse(200, 'Product fetched', product));
 });
+
+const getSellerProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({ seller: req.user._id });
+  return res
+    .status(200)
+    .json(new APIResponse(200, 'Seller Products Fetched', products));
+});
+
 const createProduct = asyncHandler(async (req, res) => {
   const { name, content, category, stock, brand, price, images } = req.body;
 
@@ -47,7 +56,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   const { name, content, category, stock, brand, price, images } = req.body;
 
   if (!name && !content && !category && !stock && !brand && !price && !images) {
-    return;
+    throw new APIError(400, 'At least one field must be provided to update');
   }
 
   const product = await Product.findById(req.params.id);
@@ -82,6 +91,26 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
   if (!isProductOwner) {
     throw new APIError(403, 'You are not authorized to delete this product');
+  }
+
+  // remove from carts
+  const cleanupCarts = await Cart.updateMany(
+    { 'items.product': product._id },
+    { $pull: { items: { product: product._id } } }
+  );
+
+  if (!cleanupCarts.acknowledged) {
+    throw new APIError(401, 'Something went wrong deleting from carts');
+  }
+
+  // now also delete all reviews on that product from DB
+  const deletedReview = await Review.deleteMany({ product: product._id });
+
+  if (!deletedReview) {
+    throw new APIError(
+      401,
+      "Something went wrong deleting the product's reviews"
+    );
   }
 
   const deletedProduct = await product.deleteOne();
@@ -148,9 +177,14 @@ const createReview = asyncHandler(async (req, res) => {
   }
 
   currProduct.numReviews = currProduct.numReviews + 1;
-  currProduct.rating =
-    allReviews.reduce((acc, review) => acc + review.score, 0) /
-    allReviews.length;
+  if (allReviews.length > 0) {
+    currProduct.rating =
+      allReviews.reduce((acc, review) => acc + review.score, 0) /
+      allReviews.length;
+  } else {
+    currProduct.rating = 0;
+  }
+
   await currProduct.save();
 
   return res.status(201).json(new APIResponse(201, 'Review created', review));
@@ -237,6 +271,7 @@ const deleteReview = asyncHandler(async (req, res) => {
 
 export {
   getProducts,
+  getSellerProducts,
   getProductById,
   createProduct,
   updateProduct,

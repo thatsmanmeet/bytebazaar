@@ -53,6 +53,12 @@ const createOrder = asyncHandler(async (req, res) => {
   const orders = [];
 
   for (const item of cart.items) {
+    const productItem = await Product.findById(item.product._id);
+
+    if (!productItem || productItem.stock < item.quantity) {
+      throw new APIError(400, 'Insufficient stock for ' + item.product.name);
+    }
+
     const itemsPrice = item.product.price * item.quantity;
     const taxPrice = itemsPrice * 0.18;
     const shippingPrice = itemsPrice < 500 ? 500 : 0;
@@ -79,9 +85,13 @@ const createOrder = asyncHandler(async (req, res) => {
       throw new APIError(401, 'Something went wrong creating order');
     }
 
-    const product = await Product.findById(item.product._id);
-    product.stock = product.stock - item.quantity;
-    await product.save();
+    const stockUpdate = await Product.updateOne(
+      { _id: item.product._id, stock: { $gte: item.quantity } },
+      { $inc: { stock: -item.quantity } }
+    );
+    if (stockUpdate.modifiedCount === 0) {
+      throw new APIError(404, 'Insufficient stocks for ' + item.product.name);
+    }
     orders.push(order);
   }
 
@@ -114,10 +124,13 @@ const cancelOrder = asyncHandler(async (req, res) => {
   order.isCancelled = true;
   const cancelledOrder = await order.save();
 
-  const product = await Product.findById(order.items[0].product._id);
-  console.log(product);
-  product.stock = Number(product.stock) + Number(order.items[0].quantity);
-  await product.save();
+  const updatedStock = await Product.updateOne(
+    { _id: order.items[0].product._id },
+    { $inc: { stock: Number(order.items[0].quantity) } }
+  );
+  if (updatedStock.modifiedCount === 0) {
+    throw new APIError(400, 'Something went wrong cancelling order.');
+  }
 
   if (!cancelledOrder) {
     throw new APIError(401, 'Something went wrong cancelling order');
@@ -188,16 +201,20 @@ const cancelOrderBySeller = asyncHandler(async (req, res) => {
   const { message } = req.body;
 
   if (!message) {
-    throw new APIError(401, 'Message is required for update');
+    throw new APIError(400, 'Message is required for update');
   }
 
   order.isCancelled = true;
   order.cancelMessage = message;
   const cancelledOrder = await order.save();
-  const product = await Product.findById(order.items[0].product._id);
-  console.log(product);
-  product.stock = Number(product.stock) + Number(order.items[0].quantity);
-  await product.save();
+  const updateStock = await Product.updateOne(
+    { _id: order.items[0].product._id },
+    { $inc: { stock: Number(order.items[0].quantity) } }
+  );
+
+  if (updateStock.modifiedCount === 0) {
+    throw new APIError(400, 'Unable to cancel the order');
+  }
 
   if (!cancelledOrder) {
     throw new APIError(401, 'Something went wrong cancelling order');

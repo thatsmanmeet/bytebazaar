@@ -88,6 +88,12 @@ const productApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    getSellerProducts: builder.query({
+      query: () => ({
+        url: `${PRODUCTS_URL}/seller`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -103,6 +109,7 @@ export const {
   useDeleteProductReviewMutation,
   useUploadProductImagesMutation,
   useGetMyReviewsQuery,
+  useGetSellerProductsQuery,
 } = productApiSlice;
 
 export default productApiSlice;

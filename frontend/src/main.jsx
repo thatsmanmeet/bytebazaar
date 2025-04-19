@@ -21,6 +21,10 @@ import OrderScreen from './screens/profile/OrderScreen';
 import SellerScreen from './screens/profile/SellerScreen';
 import AddressScreen from './screens/profile/AddressScreen';
 import OrderDetailsScreen from './screens/OrderDetailsScreen';
+import SellerOrdersScreen from './screens/profile/seller/SellerOrdersScreen';
+import SellerProductsScreen from './screens/profile/seller/SellerProductsScreen';
+import AddProduct from './screens/profile/seller/AddProduct';
+import EditProduct from './screens/profile/seller/EditProduct';
 
 const router = createBrowserRouter([
   {
@@ -79,6 +83,22 @@ const router = createBrowserRouter([
           {
             path: '/profile/seller/dashboard',
             element: <SellerScreen />,
+          },
+          {
+            path: '/profile/seller/orders',
+            element: <SellerOrdersScreen />,
+          },
+          {
+            path: '/profile/seller/products',
+            element: <SellerProductsScreen />,
+          },
+          {
+            path: '/profile/seller/addproduct',
+            element: <AddProduct />,
+          },
+          {
+            path: '/profile/seller/editproduct/:id',
+            element: <EditProduct />,
           },
         ],
       },

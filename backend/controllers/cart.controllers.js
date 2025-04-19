@@ -45,7 +45,7 @@ const addToCart = asyncHandler(async (req, res) => {
   }
 
   if (doesProductExists.stock <= quantity) {
-    throw new APIError(401, 'Not enought stock');
+    throw new APIError(401, 'Not enough stock');
   }
 
   // check if product already exists in the cart or not
@@ -89,7 +89,7 @@ const updateMyCart = asyncHandler(async (req, res) => {
     throw new APIError(401, 'Product or Quantity is required');
   }
 
-  if (quantity < 0) {
+  if (quantity < 1) {
     throw new APIError(401, 'Quantity must be greater than 0');
   }
 
@@ -100,7 +100,7 @@ const updateMyCart = asyncHandler(async (req, res) => {
   }
 
   if (doesProductExists.stock <= quantity) {
-    throw new APIError(401, 'Not enought stock');
+    throw new APIError(401, 'Not enough stock');
   }
 
   // check if product already exists in the cart or not
