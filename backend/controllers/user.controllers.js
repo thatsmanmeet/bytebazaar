@@ -69,7 +69,7 @@ const generateTwoFactorCode = asyncHandler(async (req, res) => {
   user.twoFactorSecret = secret.base32;
   await user.save({ validateBeforeSave: false });
 
-  const qrCodeData = await QRCode.toDataURL(secret.otpauth_url);
+  // const qrCodeData = await QRCode.toDataURL(secret.otpauth_url);
 
   return res
     .status(200)
@@ -77,7 +77,7 @@ const generateTwoFactorCode = asyncHandler(async (req, res) => {
       new APIResponse(
         200,
         '2fa secret generated. Scan the QR Code with an authenticator app',
-        { qrCodeData, secret: secret.base32 }
+        { qrCodeData: secret.otpauth_url, secret: secret.base32 }
       )
     );
 });
@@ -212,6 +212,7 @@ const loginUser = asyncHandler(async (req, res) => {
     role: user.role,
     address: user.address,
     sellerInfo: user.sellerInfo,
+    twoFactorEnabled: user.twoFactorEnabled,
     accessToken,
     refreshToken,
     createdAt: user.createdAt,
@@ -256,9 +257,9 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 // update user profile
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body || {};
+  const { name, email, password, confirmPassword } = req.body || {};
 
-  if (!name && !email && !password) {
+  if (!name && !email && !password && !confirmPassword) {
     return res.status(200).json(new APIResponse(200, 'Nothing to update'));
   }
 
@@ -272,6 +273,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   user.email = email || user.email;
 
   if (password) {
+    if (!confirmPassword) {
+      throw new APIError(400, 'Confirm password is required');
+    }
+    if (password !== confirmPassword) {
+      throw new APIError(400, "Password's don't match");
+    }
     user.password = password;
   }
 

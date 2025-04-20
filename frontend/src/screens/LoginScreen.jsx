@@ -43,7 +43,6 @@ const LoginScreen = () => {
         password,
         twoFactorToken: token,
       }).unwrap();
-      console.log(res);
 
       if (res.data.token === true) {
         setIsTokenRequired(true);
@@ -52,7 +51,6 @@ const LoginScreen = () => {
       dispatch(setCredentialsOnLogin(res.data));
       toast.success('Login Sucessful');
       navigate('/');
-      // console.log(res);
     } catch (error) {
       toast.error(
         error?.data?.message ||
