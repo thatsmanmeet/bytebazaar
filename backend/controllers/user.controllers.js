@@ -9,7 +9,6 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
-import QRCode from 'qrcode';
 import { generateAccessToken } from '../utils/generateAccessToken.js';
 import { generateRefreshToken } from '../utils/generateRefreshToken.js';
 import { cookieOptions } from '../constants.js';
@@ -64,7 +63,7 @@ const generateTwoFactorCode = asyncHandler(async (req, res) => {
   }
 
   // generate secret
-  const secret = speakeasy.generateSecret();
+  const secret = speakeasy.generateSecret({ name: 'ByteBazaar' });
 
   user.twoFactorSecret = secret.base32;
   await user.save({ validateBeforeSave: false });
@@ -588,6 +587,7 @@ const refreshUserTokens = asyncHandler(async (req, res) => {
     role: user.role,
     address: user.address,
     sellerInfo: user.sellerInfo,
+    twoFactorEnabled: user.twoFactorEnabled,
     accessToken,
     refreshToken,
   };

@@ -15,6 +15,14 @@ import { removeCredentialsOnLogout } from '../slices/authSlice';
 import { Input } from './ui/input';
 import { FaSearch } from 'react-icons/fa';
 import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
 
 const Navbar = () => {
   const { userInfo } = useSelector((store) => store.auth);
@@ -48,7 +56,7 @@ const Navbar = () => {
           <span>ByteBazaar</span>
         </Link>
       </div>
-      <div className='relative w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl'>
+      <div className='relative w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl hidden sm:block'>
         <FaSearch className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
         <Input
           type='text'
@@ -65,6 +73,33 @@ const Navbar = () => {
         />
       </div>
       <div className='mr-3 flex items-center gap-5'>
+        <Dialog className='block sm:hidden'>
+          <DialogTrigger className='block sm:hidden'>
+            <FaSearch size={22} color='#333' />
+          </DialogTrigger>
+
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Search for Product</DialogTitle>
+            </DialogHeader>
+            <div className='relative w-full mt-5'>
+              <FaSearch className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                type='text'
+                placeholder='What would you like to search for?'
+                className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
+                value={searchItem}
+                onChange={(e) => setSearchItem(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchItem !== '') {
+                    console.log('You entered ' + searchItem);
+                    navigate(`/search?query=${searchItem}`);
+                  }
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
         <Link to='/cart'>
           <FaCartShopping size={30} color='#333' />
         </Link>

@@ -1,24 +1,53 @@
 import { BASE_URL } from '../constants';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { removeCredentialsOnLogout } from './authSlice';
+import { removeCredentialsOnLogout, setCredentialsOnLogin } from './authSlice';
 
-const baseQuery = fetchBaseQuery({ baseUrl: BASE_URL, credentials: 'include' });
+const baseQuery = fetchBaseQuery({
+  baseUrl: BASE_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth.accessToken;
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return headers;
+  },
+});
+
+let refreshing = null;
 
 async function baseQueryWithAuth(args, api, extra) {
-  const result = await baseQuery(args, api, extra);
+  let result = await baseQuery(args, api, extra);
 
   if (
-    result.error &&
-    result.error.status === 401 &&
-    result.error.data.message === 'jwt expired'
+    result.error?.status === 401 &&
+    typeof result.error.data?.message === 'string' &&
+    result.error.data.message.includes('expired')
   ) {
-    api.dispatch(removeCredentialsOnLogout());
+    if (!refreshing) {
+      refreshing = (async () => {
+        const refreshRes = await baseQuery(
+          { url: '/api/v1/users/refreshToken', method: 'POST' },
+          api,
+          extra
+        );
+        if (refreshRes.data?.data) {
+          api.dispatch(setCredentialsOnLogin(refreshRes.data.data));
+        } else {
+          api.dispatch(removeCredentialsOnLogout());
+        }
+        refreshing = null;
+      })();
+    }
+
+    await refreshing;
+    // retry original
+    result = await baseQuery(args, api, extra);
   }
+
   return result;
 }
 
 export const apiSlice = createApi({
   baseQuery: baseQueryWithAuth,
+  refetchOnMountOrArgChange: true,
   tagTypes: [
     'Product',
     'Order',

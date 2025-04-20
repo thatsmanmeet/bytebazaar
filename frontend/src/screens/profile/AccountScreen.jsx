@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 function AccountScreen() {
   const { userInfo } = useSelector((store) => store.auth);
@@ -125,6 +126,7 @@ function AccountScreen() {
           <h1 className='text-2xl font-bold'>Account</h1>
           <p>You can update your account information here</p>
           <div className='flex flex-col gap-3 w-full md:w-[60vw]'>
+            <Label>Name</Label>
             <Input
               placeholder='Your Name'
               type='text'
@@ -133,6 +135,7 @@ function AccountScreen() {
                 setProfileData((prev) => ({ ...prev, name: e.target.value }))
               }
             />
+            <Label>Email Address</Label>
             <Input
               placeholder='Your Email Address'
               type='email'
@@ -141,6 +144,7 @@ function AccountScreen() {
                 setProfileData((prev) => ({ ...prev, email: e.target.value }))
               }
             />
+            <Label>Password</Label>
             <Input
               placeholder='Password'
               type='password'
@@ -152,6 +156,7 @@ function AccountScreen() {
                 }))
               }
             />
+            <Label>Confirm Password</Label>
             <Input
               placeholder='Confirm Password'
               type='password'
@@ -208,13 +213,17 @@ function AccountScreen() {
             </Dialog>
           )}
           {qrCodeData && (
-            <div className='flex flex-col gap-3'>
-              <p>Scan the QR code below with authenticator</p>
-              <QRCode value={qrCodeData} />
-              <p>
-                You can use this code if you cannot scan the QR code:{' '}
-                {secretToken}
-              </p>
+            <div className='flex flex-col gap-3 p-5'>
+              <div className='flex flex-col justify-center gap-4 items-center mx-auto flex-wrap'>
+                <p className='text-lg text-center'>
+                  Scan the QR code below with authenticator
+                </p>
+                <QRCode value={qrCodeData} />
+                <p className='text-sm text-center'>
+                  You can copy the code shown below if you are unable to scan
+                  the QR code: <span className='font-bold'>{secretToken}</span>
+                </p>
+              </div>
               <Input
                 type='number'
                 placeholder='OTP CODE'
