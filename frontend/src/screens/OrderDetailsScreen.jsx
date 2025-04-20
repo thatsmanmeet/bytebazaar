@@ -140,7 +140,7 @@ export default function OrderDetailsScreen() {
                   </div>
                 </div>
                 <p className='font-medium text-gray-800'>
-                  ₹{((item.product.price * item.quantity) / 100).toFixed(2)}
+                  ₹{item.product.price * item.quantity}
                 </p>
               </div>
             ))}
@@ -155,19 +155,19 @@ export default function OrderDetailsScreen() {
           <div className='space-y-2 text-gray-800'>
             <div className='flex justify-between'>
               <span>Items:</span>
-              <span>₹{(order.itemsPrice / 100).toFixed(2)}</span>
+              <span>₹{order.itemsPrice}</span>
             </div>
             <div className='flex justify-between'>
               <span>Tax:</span>
-              <span>₹{(order.taxPrice / 100).toFixed(2)}</span>
+              <span>₹{order.taxPrice}</span>
             </div>
             <div className='flex justify-between'>
               <span>Shipping:</span>
-              <span>₹{(order.shippingPrice / 100).toFixed(2)}</span>
+              <span>₹{order.shippingPrice}</span>
             </div>
             <div className='flex justify-between font-semibold text-lg mt-2'>
               <span>Total:</span>
-              <span>₹{(order.totalPrice / 100).toFixed(2)}</span>
+              <span>₹{order.totalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>

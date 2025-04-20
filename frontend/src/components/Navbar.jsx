@@ -12,12 +12,16 @@ import toast from 'react-hot-toast';
 import { FaCartShopping, FaCircleUser } from 'react-icons/fa6';
 import { useLogoutMutation } from '../slices/userApiSlice';
 import { removeCredentialsOnLogout } from '../slices/authSlice';
+import { Input } from './ui/input';
+import { FaSearch } from 'react-icons/fa';
+import { useState } from 'react';
 
 const Navbar = () => {
   const { userInfo } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [logoutApi] = useLogoutMutation();
+  const [searchItem, setSearchItem] = useState('');
 
   const logoutHandler = async () => {
     try {
@@ -43,6 +47,22 @@ const Navbar = () => {
         <Link to={'/'}>
           <span>ByteBazaar</span>
         </Link>
+      </div>
+      <div className='relative w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl'>
+        <FaSearch className='absolute left-0 top-[0.13rem] m-2.5 h-4 w-4 text-muted-foreground' />
+        <Input
+          type='text'
+          placeholder='Search for products'
+          className='bg-slate-100 dark:bg-slate-600 rounded-xl p-5 pl-9'
+          value={searchItem}
+          onChange={(e) => setSearchItem(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && searchItem !== '') {
+              console.log('You entered ' + searchItem);
+              navigate(`/search?query=${searchItem}`);
+            }
+          }}
+        />
       </div>
       <div className='mr-3 flex items-center gap-5'>
         <Link to='/cart'>

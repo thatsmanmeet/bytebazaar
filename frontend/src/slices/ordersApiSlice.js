@@ -62,9 +62,10 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ['Order'],
     }),
     cancelOrderBySeller: builder.mutation({
-      query: (id) => ({
-        url: `${ORDERS_URL}/seller/${id}`,
+      query: (data) => ({
+        url: `${ORDERS_URL}/seller/${data.id}`,
         method: 'DELETE',
+        body: data,
       }),
       invalidatesTags: ['Order'],
     }),

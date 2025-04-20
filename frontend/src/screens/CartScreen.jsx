@@ -6,7 +6,7 @@ import {
 } from '@/slices/cartApiSlice';
 import React from 'react';
 import toast from 'react-hot-toast';
-import { FaArrowLeft, FaBackward, FaCreditCard } from 'react-icons/fa6';
+import { FaArrowLeft, FaCreditCard } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
 import { ClipLoader } from 'react-spinners';
 
@@ -108,7 +108,10 @@ function CartScreen() {
                 &#8377;{cartResponse.data.totalPrice}
               </span>
             </div>
-            <Button className='flex items-center gap-2'>
+            <Button
+              onClick={() => navigate('/checkout')}
+              className='flex items-center gap-2'
+            >
               <FaCreditCard />
               Proceed to checkout
             </Button>

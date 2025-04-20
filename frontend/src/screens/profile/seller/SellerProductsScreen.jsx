@@ -32,7 +32,8 @@ export default function SellerProductsScreen() {
     data: sellerProductsResponse,
     isLoading,
     error,
-  } = useGetSellerProductsQuery();
+    refetch,
+  } = useGetSellerProductsQuery({}, { refetchOnMountOrArgChange: true });
 
   const [deleteProductAPI] = useDeleteProductByIdMutation();
 
@@ -68,6 +69,7 @@ export default function SellerProductsScreen() {
     try {
       const res = await deleteProductAPI(productId).unwrap();
       toast.success(res.message);
+      refetch();
     } catch (error) {
       toast.error(error?.message || error?.data?.message || error?.error);
     }

@@ -119,7 +119,7 @@ function ProductDetailScreen() {
         product: productResponse.data._id,
         quantity: currentStock,
       }).unwrap();
-      console.log(res.data);
+
       toast.success(res.message);
     } catch (error) {
       toast.error(
@@ -152,9 +152,10 @@ function ProductDetailScreen() {
           <div className='flex flex-col items-center overflow-hidden object-cover mx-auto max-h-fit'>
             <img
               src={selectedImage}
-              className='w-full sm:w-[50%] rounded-md mt-5 mb-2 '
+              className='w-full sm:w-[50%] rounded-md mt-5 mb-2 object-contain min-h-[500px]'
               alt=''
             />
+
             <div className='p-5 flex rounded-md items-center overflow-y-hidden overflow-x-scroll gap-3 '>
               {productResponse.data.images.map((image) => (
                 <div

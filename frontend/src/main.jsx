@@ -14,7 +14,6 @@ import RegisterScreen from './screens/RegisterScreen';
 import PrivateRoute from './components/PrivateRoute';
 import CartScreen from './screens/CartScreen';
 import CategoryScreen from './screens/CategoryScreen';
-import ProfileScreen from './screens/ProfileScreen';
 import AccountScreen from './screens/profile/AccountScreen';
 import ReviewScreen from './screens/profile/ReviewScreen';
 import OrderScreen from './screens/profile/OrderScreen';
@@ -25,6 +24,8 @@ import SellerOrdersScreen from './screens/profile/seller/SellerOrdersScreen';
 import SellerProductsScreen from './screens/profile/seller/SellerProductsScreen';
 import AddProduct from './screens/profile/seller/AddProduct';
 import EditProduct from './screens/profile/seller/EditProduct';
+import CheckoutScreen from './screens/CheckoutScreen';
+import SearchPage from './screens/SearchPage';
 
 const router = createBrowserRouter([
   {
@@ -53,12 +54,20 @@ const router = createBrowserRouter([
         element: <CategoryScreen />,
       },
       {
+        path: '/search',
+        element: <SearchPage />,
+      },
+      {
         path: '',
         element: <PrivateRoute />,
         children: [
           {
             path: '/cart',
             element: <CartScreen />,
+          },
+          {
+            path: '/checkout',
+            element: <CheckoutScreen />,
           },
           {
             path: '/orders/:id',

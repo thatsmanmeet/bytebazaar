@@ -24,8 +24,6 @@ const morganFormat =
 const app = express();
 
 // security Middlewares
-
-// Define custom token for full user-agent
 morgan.token('user-agent', function (req) {
   return req.headers['user-agent'];
 });
