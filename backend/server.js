@@ -28,30 +28,32 @@ morgan.token('user-agent', function (req) {
   return req.headers['user-agent'];
 });
 
-app.use(
-  morgan(morganFormat, {
-    stream: {
-      write: (message) => {
-        // Split message by space, preserving user-agent as the last chunk
-        const parts = message.trim().split(' ');
-        const responseTimeIndex = parts.findIndex((part) =>
-          part.endsWith('ms')
-        );
+if (process.env.NODE_ENV === 'development') {
+  app.use(
+    morgan(morganFormat, {
+      stream: {
+        write: (message) => {
+          // Split message by space, preserving user-agent as the last chunk
+          const parts = message.trim().split(' ');
+          const responseTimeIndex = parts.findIndex((part) =>
+            part.endsWith('ms')
+          );
 
-        const logObject = {
-          ip: parts[0],
-          method: parts[1],
-          url: parts[2],
-          status: parts[3],
-          responseTime: parts[responseTimeIndex],
-          userAgent: parts.slice(responseTimeIndex + 1).join(' '),
-        };
+          const logObject = {
+            ip: parts[0],
+            method: parts[1],
+            url: parts[2],
+            status: parts[3],
+            responseTime: parts[responseTimeIndex],
+            userAgent: parts.slice(responseTimeIndex + 1).join(' '),
+          };
 
-        logger.info(JSON.stringify(logObject));
+          logger.info(JSON.stringify(logObject));
+        },
       },
-    },
-  })
-);
+    })
+  );
+}
 
 app.use(
   '/api',
