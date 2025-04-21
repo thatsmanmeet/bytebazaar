@@ -171,7 +171,6 @@ const getSellerOrderById = asyncHandler(async (req, res) => {
 
 // get my orders
 const getMySellerOrders = asyncHandler(async (req, res) => {
-  console.log('test');
   const orders = await Order.find({ seller: req.user._id }).populate(
     'items.product'
   );
@@ -259,6 +258,39 @@ const addOrderUpdates = asyncHandler(async (req, res) => {
     .json(new APIResponse(200, 'Message added successfully', updatedOrder));
 });
 
+const markOrderAsDelivered = asyncHandler(async (req, res) => {
+  console.log('deliver');
+  if (!validator.isMongoId(req.params.id)) {
+    throw new APIError(401, 'Invalid order ID');
+  }
+
+  const order = await Order.findById(req.params.id).populate('items.product');
+
+  if (!order) {
+    throw new APIError(404, 'Order not found or Invalid order ID');
+  }
+
+  if (order.seller.toString() !== req.user._id.toString()) {
+    throw new APIError(403, "This order doesn't belong to you");
+  }
+
+  if (order.isCancelled) {
+    throw new APIError(409, 'Order was already cancelled.');
+  }
+
+  if (order.isDelivered) {
+    throw new APIError(409, 'Order was already delivered');
+  }
+
+  order.isDelivered = true;
+  order.isPaid = true;
+  order.deliveredAt = new Date();
+  order.paidAt = new Date();
+  await order.save({ validateBeforeSave: false });
+
+  return res.status(200).json(new APIResponse(200, 'Order delivered'));
+});
+
 export {
   getMyOrders,
   getOrderById,
@@ -269,4 +301,5 @@ export {
   cancelOrderBySeller,
   getMySellerOrders,
   getSellerOrderById,
+  markOrderAsDelivered,
 };

@@ -69,6 +69,12 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Order'],
     }),
+    markOrderAsDelivered: builder.mutation({
+      query: (data) => ({
+        url: `${ORDERS_URL}/seller/deliver/${data.id}`,
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -82,6 +88,7 @@ export const {
   useGetSellerOrderByIdQuery,
   useAddOrderUpdatesMutation,
   useCancelOrderBySellerMutation,
+  useMarkOrderAsDeliveredMutation,
 } = orderApiSlice;
 
 export default orderApiSlice;

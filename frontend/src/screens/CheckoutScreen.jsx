@@ -69,11 +69,6 @@ export default function CheckoutScreen() {
       toast.error('Payment method is required');
       return;
     }
-
-    console.log({
-      paymentMethod,
-      shippingAddress: selectedAddressData,
-    });
     try {
       const res = await createOrderAPI({
         paymentMethod,

@@ -4,7 +4,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
-
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router';
@@ -15,10 +14,10 @@ import { removeCredentialsOnLogout } from '../slices/authSlice';
 import { Input } from './ui/input';
 import { FaSearch } from 'react-icons/fa';
 import { useState } from 'react';
+import logo from '@/assets/icon.webp';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -53,7 +52,7 @@ const Navbar = () => {
     <div className='w-full p-5 flex items-center justify-between'>
       <div className='flex flex-col text-xl text-black font-semibold'>
         <Link to={'/'}>
-          <span>ByteBazaar</span>
+          <img src={logo} alt='bytebazaar' className='w-18 h-18' />
         </Link>
       </div>
       <div className='relative w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl hidden sm:block'>

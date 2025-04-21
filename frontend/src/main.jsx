@@ -26,11 +26,13 @@ import AddProduct from './screens/profile/seller/AddProduct';
 import EditProduct from './screens/profile/seller/EditProduct';
 import CheckoutScreen from './screens/CheckoutScreen';
 import SearchPage from './screens/SearchPage';
+import ErrorPage from './screens/ErrorPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',

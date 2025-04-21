@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import toast from 'react-hot-toast';
 import { FaArrowLeft, FaCreditCard } from 'react-icons/fa6';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { ClipLoader } from 'react-spinners';
 
 function CartScreen() {
@@ -55,6 +55,19 @@ function CartScreen() {
     }
   };
 
+  const cartData = cartResponse.data;
+
+  if (!cartData || cartData.length === 0) {
+    return (
+      <div className='w-full h-screen flex flex-col gap-4 items-center justify-center'>
+        <p className='text-xl'>Cart is empty. Start adding some items</p>
+        <Link to={'/'}>
+          <Button>Go Back</Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className='w-full p-5'>
       <Button
@@ -68,7 +81,7 @@ function CartScreen() {
         <div className='flex flex-col gap-3'>
           <h1 className='text-2xl font-bold'>Your Cart</h1>
           <div>
-            {cartResponse.data.items.map((item) => (
+            {cartData.items.map((item) => (
               <HorizontalProductCard
                 key={item.product._id}
                 product={item.product}

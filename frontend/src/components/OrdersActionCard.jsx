@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaInfoCircle, FaTimes } from 'react-icons/fa';
+import { FaCheck, FaInfoCircle, FaTimes } from 'react-icons/fa';
 import { FaArrowUp } from 'react-icons/fa6';
 import { useNavigate } from 'react-router';
 import { ClipLoader } from 'react-spinners';
@@ -20,12 +20,20 @@ export function OrderActionCard({
   isCancelling,
   onUpdate,
   isUpdating,
+  onDeliver,
 }) {
   const navigate = useNavigate();
   const [cancelOpen, setCancelOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [cancelMessage, setCancelMessage] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
+
+  const orderDeliveredHandler = (id) => {
+    const confirmPrompt = confirm('Is this order delivered?');
+    if (confirmPrompt) {
+      onDeliver({ id });
+    }
+  };
 
   const openCancelModal = () => {
     setCancelMessage('');
@@ -157,6 +165,13 @@ export function OrderActionCard({
             </p>
 
             <div className='mt-4 flex items-center gap-4'>
+              <Button
+                variant='default'
+                onClick={() => navigate(`/orders/${order._id}`)}
+                className='flex items-center gap-2'
+              >
+                <FaInfoCircle /> Details
+              </Button>
               {!order.isDelivered && (
                 <Button
                   variant='destructive'
@@ -174,13 +189,24 @@ export function OrderActionCard({
                   )}
                 </Button>
               )}
-              <Button
-                variant='default'
-                onClick={() => navigate(`/orders/${order._id}`)}
-                className='flex items-center gap-2'
-              >
-                <FaInfoCircle /> Details
-              </Button>
+              {!order.isCancelled && (
+                <Button
+                  variant='default'
+                  disabled={order.isDelivered || order.isCancelled}
+                  onClick={() => orderDeliveredHandler(order._id)}
+                  className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
+                >
+                  {order.isDelivered ? (
+                    <>
+                      <FaCheck /> Delivered
+                    </>
+                  ) : (
+                    <>
+                      <FaCheck /> Mark Delivered
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 variant='default'
                 onClick={() => openUpdateModal(order._id)}

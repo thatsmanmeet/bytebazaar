@@ -9,6 +9,7 @@ import {
   cancelOrderBySeller,
   getMySellerOrders,
   getSellerOrderById,
+  markOrderAsDelivered,
 } from '../controllers/order.controller.js';
 import { authMiddleware } from '../middlewares/authmiddleware.js';
 import { sellerMiddleware } from '../middlewares/sellermiddleware.js';
@@ -22,6 +23,10 @@ router
 router
   .route('/seller')
   .get(authMiddleware, sellerMiddleware, getMySellerOrders);
+
+router
+  .route('/seller/deliver/:id')
+  .post(authMiddleware, sellerMiddleware, markOrderAsDelivered);
 
 router
   .route('/seller/:id')

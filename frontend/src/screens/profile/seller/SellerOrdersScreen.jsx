@@ -4,6 +4,7 @@ import {
   useAddOrderUpdatesMutation,
   useCancelOrderBySellerMutation,
   useGetMySellerOrdersQuery,
+  useMarkOrderAsDeliveredMutation,
 } from '@/slices/ordersApiSlice';
 import React from 'react';
 import toast from 'react-hot-toast';
@@ -14,12 +15,15 @@ function SellerOrdersScreen() {
     data: SellerOrdersResponse,
     isLoading,
     error,
+    refetch,
   } = useGetMySellerOrdersQuery();
 
   const [updateOrderAPI, { isLoading: isUpdatingOrder }] =
     useAddOrderUpdatesMutation();
   const [cancelOrderAPI, { isLoading: isCancellingOrder }] =
     useCancelOrderBySellerMutation();
+
+  const [markOrderDeliveredAPI] = useMarkOrderAsDeliveredMutation();
 
   if (isLoading) {
     return (
@@ -53,6 +57,7 @@ function SellerOrdersScreen() {
     try {
       const res = await cancelOrderAPI(data).unwrap();
       toast.success(res.message);
+      refetch();
     } catch (error) {
       toast.error(error?.message || error?.data?.message || error?.error);
     }
@@ -66,6 +71,20 @@ function SellerOrdersScreen() {
     try {
       const res = await updateOrderAPI(data).unwrap();
       toast.success(res.message);
+    } catch (error) {
+      toast.error(error?.message || error?.data?.message || error?.error);
+    }
+  };
+
+  const deliverOrderHandler = async (data) => {
+    if (!data.id) {
+      toast.error('Invalid order ID or order ID not found');
+      return;
+    }
+    try {
+      const res = await markOrderDeliveredAPI(data).unwrap();
+      toast.success(res.message);
+      refetch();
     } catch (error) {
       toast.error(error?.message || error?.data?.message || error?.error);
     }
@@ -88,6 +107,7 @@ function SellerOrdersScreen() {
               isCancelling={isCancellingOrder}
               onUpdate={(data) => updateOrderHandler(data)}
               isUpdating={isUpdatingOrder}
+              onDeliver={(data) => deliverOrderHandler(data)}
             />
           ))}
         </div>

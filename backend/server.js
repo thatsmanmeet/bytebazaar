@@ -88,6 +88,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
 // connect the database and put routes...
 connectDB();
@@ -98,7 +99,9 @@ app.use('/api/v1/cart', cartRouter);
 app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/uploads', uploadRouter);
 if (process.env.NODE_ENV === 'production') {
-  // TODO
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+  });
 } else {
   app.get('/', (req, res) => {
     return res
