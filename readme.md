@@ -101,21 +101,11 @@ Paste the generated string into `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`
 
 Switch to `development` mode as per `NODE_ENV` in your `.env` file.
 
-### 🖥️ Backend
-
 ```bash
-cd backend
-npm install
+npm run build
 npm run dev
 ```
 
-### 🖥️ Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
 
 > 🌐 Backend runs on: `http://localhost:8002`  
 > 🌐 Frontend runs on: `http://localhost:5173`
