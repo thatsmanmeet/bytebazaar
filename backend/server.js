@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(
-  '/',
+  '/{*splat}',
   rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
