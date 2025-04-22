@@ -27,7 +27,10 @@ const getOrderById = asyncHandler(async (req, res) => {
     throw new APIError(404, 'Order not found or Invalid order ID');
   }
 
-  if (order.user.toString() !== req.user._id.toString()) {
+  if (
+    order.seller.toString() !== req.user._id.toString() &&
+    order.user.toString() !== req.user._id.toString()
+  ) {
     throw new APIError(403, "This order doesn't belong to you");
   }
 
