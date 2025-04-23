@@ -145,35 +145,37 @@ function ProductDetailScreen() {
   };
 
   return (
-    <div className='min-h-screen w-full'>
+    <div className='min-h-screen min-w-full overflow-hidden'>
       <Navbar />
       <div className='p-5'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-          <div className='flex flex-col items-center overflow-hidden object-cover mx-auto max-h-fit'>
+          <div className='w-full flex flex-col items-center'>
             <img
               src={selectedImage}
-              className='w-full sm:w-[50%] rounded-md mt-5 mb-2 object-contain min-h-[500px]'
+              className='w-full max-w-[500px] rounded-md mt-5 mb-2 object-contain max-h-[500px]'
               alt=''
             />
-
-            <div className='p-5 flex rounded-md items-center overflow-y-hidden overflow-x-scroll gap-3 '>
+            <div className='p-5 flex rounded-md items-center gap-3 overflow-x-auto w-full max-w-[500px] scrollbar-hide'>
               {productResponse.data.images.map((image) => (
                 <div
-                  onClick={() => {
-                    setSelectedImage(image);
-                  }}
-                  className={`w-32 border-2 cursor-pointer rounded-md p-1 ${
+                  onClick={() => setSelectedImage(image)}
+                  className={`w-24 h-24 border-2 cursor-pointer rounded-md p-1 flex items-center justify-center ${
                     selectedImage === image
                       ? 'border-blue-500'
                       : 'border-gray-300'
                   }`}
                   key={image}
                 >
-                  <img src={image} />
+                  <img
+                    src={image}
+                    alt=''
+                    className='w-full h-full object-contain rounded-md'
+                  />
                 </div>
               ))}
             </div>
           </div>
+
           <div className='p-2 flex flex-col w-full lg:max-w-xl mx-auto'>
             <div className='mt-10 mb-2 font-semibold'>
               {productResponse.data.brand}

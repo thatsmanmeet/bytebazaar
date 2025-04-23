@@ -6,11 +6,15 @@ import { Link } from 'react-router';
 function SearchedProductCard({ product }) {
   return (
     <Link to={`/product/${product._id}`}>
-      <div className='flex items-center gap-3 mt-4 p-2 cursor-pointer overflow-hidden border-gray-200 border-b-2'>
-        <img src={product.images[0]} alt={product.name} className='w-32 h-32' />
+      <div className='flex flex-col sm:flex-row items-center gap-3 mt-4 p-2 cursor-pointer overflow-hidden border-gray-200 border-b-2'>
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className='w-[70%] sm:w-32 sm:h-32'
+        />
         <div className='w-full flex flex-col sm:flex-row sm:items-center justify-between'>
           <div className='flex flex-col'>
-            <h2 className='text-lg font-semibold'>{product.name}</h2>
+            <h2 className='text-md sm:text-lg font-semibold'>{product.name}</h2>
             <div className='mt-2 mb-2 grid sm:flex grid-cols-2 sm:flex-row sm:items-center gap-1 sm:gap-2'>
               <Rating
                 value={product.rating}

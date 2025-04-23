@@ -11,7 +11,7 @@ export default function ProfileScreen({ children }) {
     <SidebarProvider>
       <AppSidebar />
       <main>
-        <SidebarInset className={'overflow-hidden max-w-full p-2'}>
+        <SidebarInset className={'overflow-hidden w-screen sm:w-full p-2'}>
           <SidebarTrigger className={'block md:hidden'} />
           {children}
         </SidebarInset>
