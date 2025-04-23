@@ -59,7 +59,7 @@ app.use(
   '/{*splat}',
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: process.env.RATE_LIMIT_REQUEST,
     message: 'Too many requests from this IP address. Please try again later.',
     statusCode: 429,
     legacyHeaders: false,
