@@ -1,6 +1,6 @@
 <img src='./assets/logo.png' height='300' width='300'>
 
-# 🛒✨ Byte Bazaar — Full Stack E-Commerce Platform
+# Byte Bazaar — Full Stack E-Commerce Platform
 
 Welcome to **Byte Bazaar** — a modern, scalable, and secure full-stack e-commerce platform built with **React**, **Node.js (Express)**, and **MongoDB**. This project delivers a complete, real-world online shopping experience including 🛍️ product browsing, 🛒 cart management, 🧾 order tracking, ✍️ reviews, and 🔐 secure authentication — with seller-specific dashboards and controls.
 
