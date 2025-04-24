@@ -1,10 +1,14 @@
 import CheckoutProductCard from '@/components/CheckoutProductCard';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroupItem, RadioGroup } from '@/components/ui/radio-group';
 import { useGetCartItemsQuery } from '@/slices/cartApiSlice';
 import { useCreateOrderMutation } from '@/slices/ordersApiSlice';
-import { useGetUserAddressQuery } from '@/slices/userApiSlice';
+import {
+  useAddUserAddressMutation,
+  useGetUserAddressQuery,
+} from '@/slices/userApiSlice';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaArrowLeft, FaCreditCard } from 'react-icons/fa6';
@@ -16,6 +20,15 @@ export default function CheckoutScreen() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [selectedAddressData, setSelectedAddressData] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [addressData, setAddressData] = useState({
+    house: '',
+    city: '',
+    state: '',
+    country: '',
+    zipcode: '',
+    isDefault: '',
+  });
 
   const {
     data: cartResponse,
@@ -27,9 +40,11 @@ export default function CheckoutScreen() {
     data: AddressResponse,
     isLoading: isAddressLoading,
     error: AddressError,
+    refetch,
   } = useGetUserAddressQuery();
 
   const [createOrderAPI] = useCreateOrderMutation();
+  const [addressAddAPI] = useAddUserAddressMutation();
 
   if (isCartLoading || isAddressLoading) {
     return (
@@ -58,6 +73,34 @@ export default function CheckoutScreen() {
       </div>
     );
   }
+
+  const addAddressHandler = async () => {
+    if (
+      !addressData.house ||
+      !addressData.city ||
+      !addressData.state ||
+      !addressData.country ||
+      !addressData.zipcode
+    ) {
+      toast.error('all fields are required');
+      return;
+    }
+    try {
+      const res = await addressAddAPI(addressData).unwrap();
+      toast.success(res.message);
+      refetch();
+      setEditFormOpen(false);
+      setAddressData({
+        house: '',
+        city: '',
+        state: '',
+        country: '',
+        zipcode: '',
+      });
+    } catch (error) {
+      toast.error(error?.data?.message || error?.message || error?.error);
+    }
+  };
 
   const handleCreateOrder = async () => {
     if (!selectedAddress) {
@@ -172,6 +215,73 @@ export default function CheckoutScreen() {
                   </div>
                 ))}
               </div>
+              <Button
+                className='mt-5'
+                onClick={() => setEditFormOpen((prev) => !prev)}
+              >
+                Add Address
+              </Button>
+              {editFormOpen && (
+                <div className='flex flex-col gap-3 w-full mt-4'>
+                  <h4 className='font-2xl font-bold'>Add New Address</h4>
+                  <Input
+                    placeholder='house'
+                    value={addressData.house}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        house: e.target.value,
+                      }))
+                    }
+                    className='p-4'
+                  />
+                  <Input
+                    placeholder='city'
+                    value={addressData.city}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        city: e.target.value,
+                      }))
+                    }
+                    className='p-4'
+                  />
+                  <Input
+                    placeholder='state'
+                    value={addressData.state}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        state: e.target.value,
+                      }))
+                    }
+                    className='p-4'
+                  />
+                  <Input
+                    placeholder='country'
+                    value={addressData.country}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        country: e.target.value,
+                      }))
+                    }
+                    className='p-4'
+                  />
+                  <Input
+                    placeholder='zipcode'
+                    value={addressData.zipcode}
+                    onChange={(e) =>
+                      setAddressData((prev) => ({
+                        ...prev,
+                        zipcode: e.target.value,
+                      }))
+                    }
+                    className='p-4'
+                  />
+                  <Button onClick={() => addAddressHandler()}>Submit</Button>
+                </div>
+              )}
             </div>
             <div>
               <h3 className='font-semibold mb-2'>Choose Payment Method</h3>
