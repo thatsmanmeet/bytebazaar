@@ -17,6 +17,11 @@ let refreshing = null;
 async function baseQueryWithAuth(args, api, extra) {
   let result = await baseQuery(args, api, extra);
 
+  if (result.error?.originalStatus === 429) {
+    window.location.href = '/429';
+    return result;
+  }
+
   if (
     result.error?.status === 401 &&
     typeof result.error.data?.message === 'string' &&

@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(
-  '/{*splat}',
+  '/api',
   rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: process.env.RATE_LIMIT_REQUEST,
@@ -90,7 +90,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
 // connect the database and put routes...
 connectDB();
@@ -101,6 +100,7 @@ app.use('/api/v1/cart', cartRouter);
 app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/uploads', uploadRouter);
 if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'frontend/dist')));
   app.get('/{*splat}', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
   });

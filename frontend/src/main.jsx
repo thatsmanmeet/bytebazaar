@@ -27,6 +27,7 @@ import EditProduct from './screens/profile/seller/EditProduct';
 import CheckoutScreen from './screens/CheckoutScreen';
 import SearchPage from './screens/SearchPage';
 import ErrorPage from './screens/ErrorPage';
+import RateLimitPage from './screens/RateLimitScreen';
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: '/search',
         element: <SearchPage />,
+      },
+      {
+        path: '/429',
+        element: <RateLimitPage />,
       },
       {
         path: '',
