@@ -4,6 +4,7 @@ import { removeCredentialsOnLogout, setCredentialsOnLogin } from './authSlice';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
+  credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.accessToken;
     if (token) headers.set('Authorization', `Bearer ${token}`);
