@@ -88,6 +88,7 @@ REFRESH_TOKEN_EXPIRY=30d
 ### 🔑 Generate secure JWT secrets
 
 ```bash
+# A good length will be between 48 and 65, after which diminishing returns are seen. Keep a minimum length of 32 but recommended length must be between 48 and 65.
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
