@@ -16,7 +16,7 @@ let refreshing = null;
 
 async function baseQueryWithAuth(args, api, extra) {
   let result = await baseQuery(args, api, extra);
-
+  console.log(result);
   if (result.error?.originalStatus === 429) {
     window.location.href = '/429';
     return result;
@@ -24,9 +24,18 @@ async function baseQueryWithAuth(args, api, extra) {
 
   if (
     result.error?.status === 401 &&
+    result.error.data?.message.includes('Authentication')
+  ) {
+    api.dispatch(removeCredentialsOnLogout());
+    window.location.href = '/';
+  }
+
+  if (
+    result.error?.status === 401 &&
     typeof result.error.data?.message === 'string' &&
     result.error.data.message.includes('expired')
   ) {
+    console.log('refresh token expired');
     if (!refreshing) {
       refreshing = (async () => {
         const refreshRes = await baseQuery(
@@ -36,6 +45,7 @@ async function baseQueryWithAuth(args, api, extra) {
         );
         if (refreshRes.data?.data) {
           api.dispatch(setCredentialsOnLogin(refreshRes.data.data));
+          console.log('refresh token refreshed', refreshRes.data.data);
         } else {
           api.dispatch(removeCredentialsOnLogout());
         }
