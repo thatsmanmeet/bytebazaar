@@ -1,14 +1,14 @@
-import HorizontalProductCard from '@/components/HorizontalProductCard';
-import { Button } from '@/components/ui/button';
+import HorizontalProductCard from "@/components/HorizontalProductCard";
+import { Button } from "@/components/ui/button";
 import {
   useDeleteFromCartMutation,
   useGetCartItemsQuery,
-} from '@/slices/cartApiSlice';
-import React from 'react';
-import toast from 'react-hot-toast';
-import { FaArrowLeft, FaCreditCard } from 'react-icons/fa6';
-import { Link, useNavigate } from 'react-router';
-import { ClipLoader } from 'react-spinners';
+} from "@/slices/cartApiSlice";
+import React from "react";
+import toast from "react-hot-toast";
+import { FaArrowLeft, FaCartShopping, FaCreditCard } from "react-icons/fa6";
+import { Link, useNavigate } from "react-router";
+import { ClipLoader } from "react-spinners";
 
 function CartScreen() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ function CartScreen() {
 
   if (isCartLoading) {
     return (
-      <div className='w-full h-screen flex items-center justify-center'>
+      <div className="w-full h-screen flex items-center justify-center">
         <ClipLoader size={50} />
       </div>
     );
@@ -32,7 +32,7 @@ function CartScreen() {
 
   if (cartError) {
     return (
-      <div className='w-full h-screen flex items-center justify-center'>
+      <div className="w-full h-screen flex items-center justify-center">
         <p>{cartError?.data?.message || cartError?.error}</p>
       </div>
     );
@@ -40,7 +40,7 @@ function CartScreen() {
 
   const removeFromCartHandler = async (productId) => {
     if (!productId) {
-      toast.error('Product ID is required.');
+      toast.error("Product ID is required.");
     }
     try {
       const res = await deleteFromCart({ product: productId }).unwrap();
@@ -50,7 +50,7 @@ function CartScreen() {
       toast.error(
         error?.data?.message ||
           error?.error ||
-          'Removing Item from cart failed.'
+          "Removing Item from cart failed.",
       );
     }
   };
@@ -59,9 +59,9 @@ function CartScreen() {
 
   if (!cartData || cartData.length === 0) {
     return (
-      <div className='w-full h-screen flex flex-col gap-4 items-center justify-center'>
-        <p className='text-xl'>Cart is empty. Start adding some items</p>
-        <Link to={'/'}>
+      <div className="w-full h-screen flex flex-col gap-4 items-center justify-center">
+        <p className="text-xl">Cart is empty. Start adding some items</p>
+        <Link to={"/"}>
           <Button>Go Back</Button>
         </Link>
       </div>
@@ -69,67 +69,86 @@ function CartScreen() {
   }
 
   return (
-    <div className='w-full p-5'>
+    <div className="w-full p-5">
       <Button
-        className='flex items-center gap-2 cursor-pointer'
-        onClick={() => navigate('/')}
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={() => navigate("/")}
       >
         <FaArrowLeft />
         <span>Back</span>
       </Button>
-      <div className='mt-5 w-full grid grid-cols-1 sm:grid-cols-2 gap-4'>
-        <div className='flex flex-col gap-3'>
-          <h1 className='text-2xl font-bold'>Your Cart</h1>
+      <div className="mt-5 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-3">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            {" "}
+            <FaCartShopping />
+            Your Cart
+          </h1>
           <div>
-            {cartData.items.map((item) => (
-              <HorizontalProductCard
-                key={item.product._id}
-                product={item.product}
-                qty={item.quantity}
-                removeFromCartHandler={(productId) =>
-                  removeFromCartHandler(productId)
-                }
-                isDeleting={isDeleting}
-              />
-            ))}
+            {cartData.items.length === 0 ? (
+              <div className="p-0">
+                <p className="text-xl ml-1">
+                  Your Cart is Empty. Start adding Items to cart to continue
+                  shopping.
+                </p>
+              </div>
+            ) : (
+              <>
+                {cartData.items.map((item) => (
+                  <HorizontalProductCard
+                    key={item.product._id}
+                    product={item.product}
+                    qty={item.quantity}
+                    removeFromCartHandler={(productId) =>
+                      removeFromCartHandler(productId)
+                    }
+                    isDeleting={isDeleting}
+                  />
+                ))}
+              </>
+            )}
           </div>
         </div>
-        <div className='flex flex-col gap-3'>
-          <div className='bg-gray-100 rounded-md p-4 flex flex-col gap-3'>
-            <h3 className='text-2xl font-bold'>Cart Summary</h3>
-            <div className='flex items-center gap-4'>
-              <span className='text-xl font-semibold'>Items Price: </span>
-              <span className='text-xl font-semibold'>
-                &#8377;{cartResponse.data.itemsPrice}
-              </span>
+        {cartData.items.length !== 0 ? (
+          <div className="flex flex-col gap-3">
+            <div className="bg-gray-100 rounded-md p-4 flex flex-col gap-3">
+              <h3 className="text-2xl font-bold">Cart Summary</h3>
+              <div className="flex items-center gap-4">
+                <span className="text-xl font-semibold">Items Price: </span>
+                <span className="text-xl font-semibold">
+                  &#8377;{cartResponse.data.itemsPrice}
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xl font-semibold">Tax Price: </span>
+                <span className="text-xl font-semibold">
+                  &#8377;{cartResponse.data.taxPrice} (18% GST)
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xl font-semibold">Shipping Price: </span>
+                <span className="text-xl font-semibold">
+                  &#8377;{cartResponse.data.shippingPrice}
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xl font-semibold">Total Price: </span>
+                <span className="text-xl font-semibold">
+                  &#8377;{cartResponse.data.totalPrice}
+                </span>
+              </div>
+              <Button
+                onClick={() => navigate("/checkout")}
+                className="flex items-center gap-2"
+              >
+                <FaCreditCard />
+                Proceed to checkout
+              </Button>
             </div>
-            <div className='flex items-center gap-4'>
-              <span className='text-xl font-semibold'>Tax Price: </span>
-              <span className='text-xl font-semibold'>
-                &#8377;{cartResponse.data.taxPrice} (18% GST)
-              </span>
-            </div>
-            <div className='flex items-center gap-4'>
-              <span className='text-xl font-semibold'>Shipping Price: </span>
-              <span className='text-xl font-semibold'>
-                &#8377;{cartResponse.data.shippingPrice}
-              </span>
-            </div>
-            <div className='flex items-center gap-4'>
-              <span className='text-xl font-semibold'>Total Price: </span>
-              <span className='text-xl font-semibold'>
-                &#8377;{cartResponse.data.totalPrice}
-              </span>
-            </div>
-            <Button
-              onClick={() => navigate('/checkout')}
-              className='flex items-center gap-2'
-            >
-              <FaCreditCard />
-              Proceed to checkout
-            </Button>
           </div>
-        </div>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );

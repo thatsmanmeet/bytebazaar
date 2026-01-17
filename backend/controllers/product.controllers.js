@@ -1,62 +1,80 @@
-import { asyncHandler } from '../utils/AsyncHandler.js';
-import { APIError } from '../utils/APIError.js';
-import { APIResponse } from '../utils/APIResponse.js';
-import { Product } from '../models/product.models.js';
-import { Review } from '../models/reviews.models.js';
-import { Cart } from '../models/cart.models.js';
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { APIError } from "../utils/APIError.js";
+import { APIResponse } from "../utils/APIResponse.js";
+import { Product } from "../models/product.models.js";
+import { Review } from "../models/reviews.models.js";
+import { Cart } from "../models/cart.models.js";
 
 const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({});
   return res
     .status(200)
-    .json(new APIResponse(200, 'Products Fetched', products));
+    .json(new APIResponse(200, "Products Fetched", products));
 });
 const getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) {
-    throw new APIError(404, 'Product not found or Invalid product ID');
+    throw new APIError(404, "Product not found or Invalid product ID");
   }
-  return res.status(200).json(new APIResponse(200, 'Product fetched', product));
+  return res.status(200).json(new APIResponse(200, "Product fetched", product));
 });
 
 const getSellerProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({ seller: req.user._id });
   return res
     .status(200)
-    .json(new APIResponse(200, 'Seller Products Fetched', products));
+    .json(new APIResponse(200, "Seller Products Fetched", products));
 });
 
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, content, category, stock, brand, price, images } = req.body;
+  // const { name, content, category, stock, brand, price, images } = req.body;
 
-  if (!name || !content || !category || !stock || !brand || !price || !images) {
-    throw new APIError(400, 'All fields are required.');
+  const body = {
+    name: req.body.name.toString(),
+    content: req.body.content.toString(),
+    category: req.body.category.toString(),
+    stock: req.body.stock.toString(),
+    brand: req.body.brand.toString(),
+    price: req.body.price.toString(),
+    images: req.body.images.toString(),
+  };
+
+  if (
+    !body.name ||
+    !body.content ||
+    !body.category ||
+    !body.stock ||
+    !body.brand ||
+    !body.price ||
+    !body.images
+  ) {
+    throw new APIError(400, "All fields are required.");
   }
 
   const product = await Product.create({
-    name,
-    content,
-    category,
-    stock,
-    brand,
-    price,
-    images,
-    seller: req.user._id,
+    name: body.name,
+    content: body.content,
+    category: body.category,
+    stock: body.stock,
+    brand: body.brand,
+    price: body.price,
+    images: body.images,
+    seller: req.user._id.toString(),
   });
 
   if (!product) {
-    throw new APIError(401, 'Error creating the product');
+    throw new APIError(401, "Error creating the product");
   }
 
   return res
     .status(201)
-    .json(new APIResponse(201, 'Product created successfully', product));
+    .json(new APIResponse(201, "Product created successfully", product));
 });
 const updateProduct = asyncHandler(async (req, res) => {
   const { name, content, category, stock, brand, price, images } = req.body;
 
   if (!name && !content && !category && !stock && !brand && !price && !images) {
-    throw new APIError(400, 'At least one field must be provided to update');
+    throw new APIError(400, "At least one field must be provided to update");
   }
 
   const product = await Product.findById(req.params.id);
@@ -64,7 +82,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   const isProductOwner = product.seller.toString() === req.user._id.toString();
 
   if (!isProductOwner) {
-    throw new APIError(403, 'You are not authorized to update this product');
+    throw new APIError(403, "You are not authorized to update this product");
   }
 
   product.name = name || product.name;
@@ -77,12 +95,12 @@ const updateProduct = asyncHandler(async (req, res) => {
   const savedProduct = await product.save();
 
   if (!savedProduct) {
-    throw new APIError(401, 'Something went wrong while updating the product');
+    throw new APIError(401, "Something went wrong while updating the product");
   }
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Product updated successfully', savedProduct));
+    .json(new APIResponse(200, "Product updated successfully", savedProduct));
 });
 const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -90,17 +108,17 @@ const deleteProduct = asyncHandler(async (req, res) => {
   const isProductOwner = product.seller.toString() === req.user._id.toString();
 
   if (!isProductOwner) {
-    throw new APIError(403, 'You are not authorized to delete this product');
+    throw new APIError(403, "You are not authorized to delete this product");
   }
 
   // remove from carts
   const cleanupCarts = await Cart.updateMany(
-    { 'items.product': product._id },
-    { $pull: { items: { product: product._id } } }
+    { "items.product": product._id },
+    { $pull: { items: { product: product._id } } },
   );
 
   if (!cleanupCarts.acknowledged) {
-    throw new APIError(401, 'Something went wrong deleting from carts');
+    throw new APIError(401, "Something went wrong deleting from carts");
   }
 
   // now also delete all reviews on that product from DB
@@ -109,43 +127,43 @@ const deleteProduct = asyncHandler(async (req, res) => {
   if (!deletedReview) {
     throw new APIError(
       401,
-      "Something went wrong deleting the product's reviews"
+      "Something went wrong deleting the product's reviews",
     );
   }
 
   const deletedProduct = await product.deleteOne();
 
   if (!deletedProduct) {
-    throw new APIError(401, 'Something went wrong while deleting the product');
+    throw new APIError(401, "Something went wrong while deleting the product");
   }
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Product deleted successfully'));
+    .json(new APIResponse(200, "Product deleted successfully"));
 });
 const getReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({ product: req.params.id }).populate(
-    'user',
-    'name'
+    "user",
+    "name",
   );
-  return res.status(200).json(new APIResponse(200, 'Reviews fetched', reviews));
+  return res.status(200).json(new APIResponse(200, "Reviews fetched", reviews));
 });
 
 const getMyReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({ user: req.user._id }).populate(
-    'product',
-    'name'
+    "product",
+    "name",
   );
   return res
     .status(200)
-    .json(new APIResponse(200, 'User Reviews Fetched', reviews));
+    .json(new APIResponse(200, "User Reviews Fetched", reviews));
 });
 
 const createReview = asyncHandler(async (req, res) => {
   const { title, score, comment } = req.body;
 
   if (!score) {
-    throw new APIError(401, 'Score is required.');
+    throw new APIError(401, "Score is required.");
   }
 
   const alreadyReviewed = await Review.findOne({
@@ -153,7 +171,7 @@ const createReview = asyncHandler(async (req, res) => {
   });
 
   if (alreadyReviewed) {
-    throw new APIError(409, 'You have already reviewed this product');
+    throw new APIError(409, "You have already reviewed this product");
   }
 
   const review = await Review.create({
@@ -165,7 +183,7 @@ const createReview = asyncHandler(async (req, res) => {
   });
 
   if (!review) {
-    throw new APIError(401, 'Something went wrong creating a review');
+    throw new APIError(401, "Something went wrong creating a review");
   }
 
   // update product info
@@ -173,7 +191,7 @@ const createReview = asyncHandler(async (req, res) => {
   const allReviews = await Review.find({ product: currProduct._id });
 
   if (!currProduct) {
-    throw new APIError(404, 'Product not found');
+    throw new APIError(404, "Product not found");
   }
 
   currProduct.numReviews = currProduct.numReviews + 1;
@@ -187,7 +205,7 @@ const createReview = asyncHandler(async (req, res) => {
 
   await currProduct.save();
 
-  return res.status(201).json(new APIResponse(201, 'Review created', review));
+  return res.status(201).json(new APIResponse(201, "Review created", review));
 });
 const updateReview = asyncHandler(async (req, res) => {
   const { title, score, comment } = req.body;
@@ -201,7 +219,7 @@ const updateReview = asyncHandler(async (req, res) => {
   }
 
   if (alreadyReviewed.user.toString() !== req.user._id.toString()) {
-    throw new APIError(403, 'You are not authorized to update this review');
+    throw new APIError(403, "You are not authorized to update this review");
   }
 
   alreadyReviewed.title = title || alreadyReviewed.title;
@@ -210,7 +228,7 @@ const updateReview = asyncHandler(async (req, res) => {
   const review = await alreadyReviewed.save();
 
   if (!review) {
-    throw new APIError(401, 'Something went wrong updating a review');
+    throw new APIError(401, "Something went wrong updating a review");
   }
 
   // update product info
@@ -218,7 +236,7 @@ const updateReview = asyncHandler(async (req, res) => {
   const allReviews = await Review.find({ product: currProduct._id });
 
   if (!currProduct) {
-    throw new APIError(404, 'Product not found');
+    throw new APIError(404, "Product not found");
   }
 
   currProduct.rating =
@@ -226,7 +244,7 @@ const updateReview = asyncHandler(async (req, res) => {
     allReviews.length;
   await currProduct.save();
 
-  return res.status(201).json(new APIResponse(201, 'Review updated', review));
+  return res.status(201).json(new APIResponse(201, "Review updated", review));
 });
 const deleteReview = asyncHandler(async (req, res) => {
   const review = await Review.findOne({
@@ -238,12 +256,12 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   if (review.user.toString() !== req.user._id.toString()) {
-    throw new APIError(403, 'You are not authorized to delete this review');
+    throw new APIError(403, "You are not authorized to delete this review");
   }
 
   const deletedReview = await review.deleteOne();
   if (!deletedReview) {
-    throw new APIError(401, 'Something went wrong deleting this review');
+    throw new APIError(401, "Something went wrong deleting this review");
   }
 
   // update product info
@@ -251,7 +269,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   const allReviews = await Review.find({ product: currProduct._id });
 
   if (!currProduct) {
-    throw new APIError(404, 'Product not found');
+    throw new APIError(404, "Product not found");
   }
 
   currProduct.numReviews = currProduct.numReviews - 1;
@@ -264,7 +282,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
   await currProduct.save();
 
-  return res.status(200).json(new APIResponse(201, 'Review Deleted'));
+  return res.status(200).json(new APIResponse(201, "Review Deleted"));
 });
 
 // product validation failed: rating: Cast to Number failed for value "NaN" (type number) at path "rating"

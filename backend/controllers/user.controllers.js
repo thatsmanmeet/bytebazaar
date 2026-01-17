@@ -1,27 +1,27 @@
-import { asyncHandler } from '../utils/AsyncHandler.js';
-import { APIError } from '../utils/APIError.js';
-import { APIResponse } from '../utils/APIResponse.js';
-import { User } from '../models/user.models.js';
-import { Cart } from '../models/cart.models.js';
-import { Product } from '../models/product.models.js';
-import { Review } from '../models/reviews.models.js';
-import validator from 'validator';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import speakeasy from 'speakeasy';
-import { generateAccessToken } from '../utils/generateAccessToken.js';
-import { generateRefreshToken } from '../utils/generateRefreshToken.js';
-import { cookieOptions } from '../constants.js';
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { APIError } from "../utils/APIError.js";
+import { APIResponse } from "../utils/APIResponse.js";
+import { User } from "../models/user.models.js";
+import { Cart } from "../models/cart.models.js";
+import { Product } from "../models/product.models.js";
+import { Review } from "../models/reviews.models.js";
+import validator from "validator";
+import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
+import speakeasy from "speakeasy";
+import { generateAccessToken } from "../utils/generateAccessToken.js";
+import { generateRefreshToken } from "../utils/generateRefreshToken.js";
+import { cookieOptions } from "../constants.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
 
   if (!name || !email || !password || !confirmPassword) {
-    throw new APIError(400, 'All fields are required.');
+    throw new APIError(400, "All fields are required.");
   }
 
   if (!validator.isEmail(email)) {
-    throw new APIError(400, 'Invalid email address found.');
+    throw new APIError(400, "Invalid email address found.");
   }
 
   if (password !== confirmPassword) {
@@ -29,13 +29,13 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   if (password.toString().length < 8 || confirmPassword.toString().length < 8) {
-    throw new APIError(400, 'Password must have a minimum length of 8');
+    throw new APIError(400, "Password must have a minimum length of 8");
   }
 
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw new APIError(409, 'User already exist.');
+    throw new APIError(409, "User already exist.");
   }
 
   const newUser = await User.create({ name, email, password });
@@ -43,27 +43,27 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.findById(newUser._id);
 
   if (!user) {
-    throw new APIError(400, 'Something went wrong creating a user');
+    throw new APIError(400, "Something went wrong creating a user");
   }
 
   return res
     .status(201)
-    .json(new APIResponse(201, 'User created successfully!', user));
+    .json(new APIResponse(201, "User created successfully!", user));
 });
 
 // create a 2fa code
 const generateTwoFactorCode = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select('+twoFactorSecret');
+  const user = await User.findById(req.user._id).select("+twoFactorSecret");
   if (!user) {
-    throw new APIError(404, 'User not found');
+    throw new APIError(404, "User not found");
   }
 
   if (user.twoFactorEnabled) {
-    throw new APIError(409, 'Two factor authentication is already enabled');
+    throw new APIError(409, "Two factor authentication is already enabled");
   }
 
   // generate secret
-  const secret = speakeasy.generateSecret({ name: 'ByteBazaar' });
+  const secret = speakeasy.generateSecret({ name: "ByteBazaar" });
 
   user.twoFactorSecret = secret.base32;
   await user.save({ validateBeforeSave: false });
@@ -75,37 +75,37 @@ const generateTwoFactorCode = asyncHandler(async (req, res) => {
     .json(
       new APIResponse(
         200,
-        '2fa secret generated. Scan the QR Code with an authenticator app',
-        { qrCodeData: secret.otpauth_url, secret: secret.base32 }
-      )
+        "2fa secret generated. Scan the QR Code with an authenticator app",
+        { qrCodeData: secret.otpauth_url, secret: secret.base32 },
+      ),
     );
 });
 // verify and enable 2fa
 const verifyTwoFactorCode = asyncHandler(async (req, res) => {
   const { token } = req.body;
-  const user = await User.findById(req.user._id).select('+twoFactorSecret');
+  const user = await User.findById(req.user._id).select("+twoFactorSecret");
   if (!user || !user.twoFactorSecret) {
-    throw new APIError(404, 'User not found or 2FA process not started');
+    throw new APIError(404, "User not found or 2FA process not started");
   }
 
   if (user.twoFactorEnabled) {
-    throw new APIError(409, 'Two factor authentication is already enabled');
+    throw new APIError(409, "Two factor authentication is already enabled");
   }
 
   if (!token) {
-    throw new APIError(401, 'Token is required to enable 2FA on this account');
+    throw new APIError(401, "Token is required to enable 2FA on this account");
   }
 
   // verify OTP
   const isVerified = speakeasy.totp.verify({
     secret: user.twoFactorSecret,
-    encoding: 'base32',
+    encoding: "base32",
     token,
     window: 1,
   });
 
   if (!isVerified) {
-    throw new APIError(400, 'Invalid Totp code.');
+    throw new APIError(400, "Invalid Totp code.");
   }
 
   // Now enable 2FA
@@ -114,7 +114,7 @@ const verifyTwoFactorCode = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, '2FA enabled successfully.'));
+    .json(new APIResponse(200, "2FA enabled successfully."));
 });
 
 // disable 2fa
@@ -122,24 +122,24 @@ const disableTwoFactorAuthentication = asyncHandler(async (req, res) => {
   const { password } = req.body;
 
   if (!password) {
-    throw new APIError(401, 'Password is required.');
+    throw new APIError(401, "Password is required.");
   }
 
   const user = await User.findById(req.user._id).select(
-    '+twoFactorSecret +password'
+    "+twoFactorSecret +password",
   );
   if (!user) {
-    throw new APIError(404, 'User not found');
+    throw new APIError(404, "User not found");
   }
 
   if (!user.twoFactorEnabled || !user.twoFactorSecret) {
-    throw new APIError(409, 'Two factor authentication is already disabled');
+    throw new APIError(409, "Two factor authentication is already disabled");
   }
 
   const isPasswordValid = await user.matchPassword(password);
 
   if (!isPasswordValid) {
-    throw new APIError(403, 'Invalid password. Cannot disable 2FA.');
+    throw new APIError(403, "Invalid password. Cannot disable 2FA.");
   }
 
   user.twoFactorEnabled = false;
@@ -148,42 +148,42 @@ const disableTwoFactorAuthentication = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, '2FA disabled successfully'));
+    .json(new APIResponse(200, "2FA disabled successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password, twoFactorToken } = req.body;
 
   if (!email || !password) {
-    throw new APIError(400, 'All fields are required.');
+    throw new APIError(400, "All fields are required.");
   }
 
   if (!validator.isEmail(email)) {
-    throw new APIError(401, 'Invalid email address.');
+    throw new APIError(401, "Invalid email address.");
   }
 
   if (password.toString().length < 8) {
-    throw new APIError(400, 'Password must have a minimum length of 8');
+    throw new APIError(400, "Password must have a minimum length of 8");
   }
 
   const user = await User.findOne({ email }).select(
-    '+password +twoFactorSecret'
+    "+password +twoFactorSecret",
   );
   if (!user) {
     throw new APIError(401, "User doesn't exist");
   }
 
   if (!(await user.matchPassword(password))) {
-    throw new APIError(401, 'Invalid Email or Password');
+    throw new APIError(401, "Invalid Email or Password");
   }
 
   // console.log('2FA: ', twoFactorToken);
 
   if (user.twoFactorEnabled) {
-    if (!twoFactorToken || twoFactorToken === '') {
+    if (!twoFactorToken || twoFactorToken === "") {
       return res
         .status(200)
-        .json(new APIResponse(200, '2FA Token is required', { token: true }));
+        .json(new APIResponse(200, "2FA Token is required", { token: true }));
     }
 
     // verify token
@@ -191,11 +191,11 @@ const loginUser = asyncHandler(async (req, res) => {
       secret: user.twoFactorSecret,
       token: twoFactorToken,
       window: 1,
-      encoding: 'base32',
+      encoding: "base32",
     });
 
     if (!isVerified) {
-      throw new APIError(401, 'Invalid 2FA token found. Cannot login');
+      throw new APIError(401, "Invalid 2FA token found. Cannot login");
     }
   }
 
@@ -220,7 +220,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Logged in successfully', returnUser));
+    .json(new APIResponse(200, "Logged in successfully", returnUser));
 });
 
 // logout
@@ -232,14 +232,14 @@ const logoutUser = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new APIError(401, 'User not authenticated.');
+    throw new APIError(401, "User not authenticated.");
   }
 
   return res
-    .clearCookie('accessToken', cookieOptions)
-    .clearCookie('refreshToken', cookieOptions)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
     .status(200)
-    .json(new APIResponse(200, 'User logged out successfully'));
+    .json(new APIResponse(200, "User logged out successfully"));
 });
 
 // get user profile
@@ -247,11 +247,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
   return res
     .status(200)
-    .json(new APIResponse(200, 'User profile fecthed successfully!', user));
+    .json(new APIResponse(200, "User profile fecthed successfully!", user));
 });
 
 // update user profile
@@ -259,13 +259,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const { name, email, password, confirmPassword } = req.body || {};
 
   if (!name && !email && !password && !confirmPassword) {
-    return res.status(200).json(new APIResponse(200, 'Nothing to update'));
+    return res.status(200).json(new APIResponse(200, "Nothing to update"));
   }
 
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
 
   user.name = name || user.name;
@@ -273,7 +273,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
   if (password) {
     if (!confirmPassword) {
-      throw new APIError(400, 'Confirm password is required');
+      throw new APIError(400, "Confirm password is required");
     }
     if (password !== confirmPassword) {
       throw new APIError(400, "Password's don't match");
@@ -284,14 +284,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const saveUser = await user.save();
 
   if (!saveUser) {
-    throw new APIError(400, 'Error updating the user');
+    throw new APIError(400, "Error updating the user");
   }
 
   // console.log(saveUser);
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'User updated successfully', saveUser));
+    .json(new APIResponse(200, "User updated successfully", saveUser));
 });
 
 // delete profile
@@ -299,27 +299,27 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new APIError(401, 'All fields are required.');
+    throw new APIError(401, "All fields are required.");
   }
 
   if (!validator.isEmail(email)) {
-    throw new APIError(401, 'Invalid Email Format');
+    throw new APIError(401, "Invalid Email Format");
   }
 
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new APIError(404, 'User not found');
+    throw new APIError(404, "User not found");
   }
 
   if (user._id.toString() !== req.user._id.toString()) {
-    throw new APIError(403, 'You need to login first to delete your account');
+    throw new APIError(403, "You need to login first to delete your account");
   }
 
   const isValidPassword = await user.matchPassword(password);
 
   if (!isValidPassword) {
-    throw new APIError(403, 'Invalid email or password');
+    throw new APIError(403, "Invalid email or password");
   }
 
   // now start deletion process
@@ -332,31 +332,31 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie('accessToken', cookieOptions)
-    .clearCookie('refreshToken', cookieOptions)
-    .json(new APIResponse(200, 'Account deleted successfully!'));
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
+    .json(new APIResponse(200, "Account deleted successfully!"));
 });
 
 // get address
 const getUserAddress = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) throw new APIError(404, 'User not found or not autheticated');
+  if (!user) throw new APIError(404, "User not found or not autheticated");
   const addresses = user.address || [];
   // console.log(addresses);
   return res
     .status(200)
-    .json(new APIResponse(200, 'Addresses fetched successfully', addresses));
+    .json(new APIResponse(200, "Addresses fetched successfully", addresses));
 });
 
 // add address
 const addUserAddress = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  if (!user) throw new APIError(404, 'User not found or not autheticated');
+  if (!user) throw new APIError(404, "User not found or not autheticated");
 
   const { house, city, state, country, zipcode } = req.body;
 
   if (!house || !city || !state || !country || !zipcode) {
-    throw new APIError(401, 'All fields are required.');
+    throw new APIError(401, "All fields are required.");
   }
 
   const newAddress = { house, city, state, country, zipcode };
@@ -365,35 +365,35 @@ const addUserAddress = asyncHandler(async (req, res) => {
   const savedUser = await user.save({ validateBeforeSave: false });
 
   if (!savedUser) {
-    throw new APIError(400, 'Unable to save addresses');
+    throw new APIError(400, "Unable to save addresses");
   }
 
   return res
     .status(201)
-    .json(new APIResponse(201, 'Address saved successfully', savedUser));
+    .json(new APIResponse(201, "Address saved successfully", savedUser));
 });
 // update address
 const updateUserAddress = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
 
   const { id, house, state, city, country, zipcode, isDefault } = req.body;
 
   if (!id) {
-    throw new APIError(400, 'No Address ID found');
+    throw new APIError(400, "No Address ID found");
   }
 
   if (!house && !state && !city && !country && !zipcode) {
-    return res.status(200).json(new APIResponse(200, 'Nothing to update'));
+    return res.status(200).json(new APIResponse(200, "Nothing to update"));
   }
 
   // find the subdocument address using .id() from mongoose
   const address = user.address.id(id);
   if (!address) {
-    throw new APIError(401, 'Address not found');
+    throw new APIError(401, "Address not found");
   }
 
   address.house = house || address.house;
@@ -416,26 +416,26 @@ const updateUserAddress = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Address updated successfully', savedUser));
+    .json(new APIResponse(200, "Address updated successfully", savedUser));
 });
 // delete address
 const deleteUserAddress = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
 
   const { id: addressId } = req.body;
 
   if (!addressId) {
-    throw new APIError(400, 'No Address ID found');
+    throw new APIError(400, "No Address ID found");
   }
 
   const address = user.address.id(addressId);
 
   if (!address) {
-    throw new APIError(401, 'Address not found');
+    throw new APIError(401, "Address not found");
   }
 
   user.address.pull({ _id: addressId });
@@ -443,7 +443,7 @@ const deleteUserAddress = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Address deleted successfully', savedUser));
+    .json(new APIResponse(200, "Address deleted successfully", savedUser));
 });
 
 // become seller
@@ -451,11 +451,11 @@ const becomeSeller = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
 
-  if (user.role === 'seller') {
-    throw new APIError(403, 'You are already a seller!');
+  if (user.role === "seller") {
+    throw new APIError(403, "You are already a seller!");
   }
 
   const { businessName, email, phone, website, location, description } =
@@ -464,7 +464,7 @@ const becomeSeller = asyncHandler(async (req, res) => {
   if (!email || !businessName || !phone || !location) {
     throw new APIError(
       401,
-      'Email, businessName, phone and location are required'
+      "Email, businessName, phone and location are required",
     );
   }
 
@@ -477,17 +477,17 @@ const becomeSeller = asyncHandler(async (req, res) => {
     description: description ?? null,
   };
 
-  user.role = 'seller';
+  user.role = "seller";
   user.sellerInfo = sellerInfo;
   const savedUser = await user.save();
 
   if (!savedUser) {
-    throw new APIError(400, 'Unable to save the seller information');
+    throw new APIError(400, "Unable to save the seller information");
   }
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Your are now an seller', savedUser));
+    .json(new APIResponse(200, "Your are now an seller", savedUser));
 });
 
 // update seller info
@@ -504,17 +504,17 @@ const updateSellerInfo = asyncHandler(async (req, res) => {
     !location &&
     !description
   ) {
-    return res.status(200).json(new APIResponse(200, 'Nothing to update'));
+    return res.status(200).json(new APIResponse(200, "Nothing to update"));
   }
 
   const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found or not authenticated');
+    throw new APIError(404, "User not found or not authenticated");
   }
 
-  if (user.role !== 'seller') {
-    throw new APIError(403, 'You are not a seller!');
+  if (user.role !== "seller") {
+    throw new APIError(403, "You are not a seller!");
   }
 
   const sellerInfo = {
@@ -530,7 +530,7 @@ const updateSellerInfo = asyncHandler(async (req, res) => {
   const savedUser = await user.save();
 
   if (!savedUser) {
-    throw new APIError(400, 'Unable to save the seller information');
+    throw new APIError(400, "Unable to save the seller information");
   }
 
   return res
@@ -538,9 +538,9 @@ const updateSellerInfo = asyncHandler(async (req, res) => {
     .json(
       new APIResponse(
         200,
-        'Your seller information has been updated',
-        savedUser
-      )
+        "Your seller information has been updated",
+        savedUser,
+      ),
     );
 });
 
@@ -550,27 +550,27 @@ const refreshUserTokens = asyncHandler(async (req, res) => {
   const incomingToken = req.cookies?.refreshToken || req.body.refreshToken;
 
   if (!incomingToken) {
-    throw new APIError(403, 'Unauthorized access');
+    throw new APIError(403, "Unauthorized access");
   }
 
   // decode token
   const decodedToken = jwt.verify(
     incomingToken,
-    process.env.REFRESH_TOKEN_SECRET
+    process.env.REFRESH_TOKEN_SECRET,
   );
 
   if (!decodedToken) {
-    throw new APIError(401, 'Invalid refresh token');
+    throw new APIError(401, "Invalid refresh token");
   }
 
   const user = await User.findById(decodedToken._id);
 
   if (!user) {
-    throw new APIError(404, 'User not found with assocuiated token');
+    throw new APIError(404, "User not found with assocuiated token");
   }
 
   if (user.refreshToken !== incomingToken) {
-    throw new APIError(401, 'Refresh token is invalid/expired');
+    throw new APIError(401, "Refresh token is invalid/expired");
   }
 
   const accessToken = generateAccessToken(res, user._id, user.email, user.role);
@@ -594,7 +594,7 @@ const refreshUserTokens = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Token Refreshed', validUser));
+    .json(new APIResponse(200, "Token Refreshed", validUser));
 });
 
 // generate reset password token
@@ -602,26 +602,26 @@ const generateResetPasswordToken = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    throw new APIError(401, 'Email is required.');
+    throw new APIError(401, "Email is required.");
   }
 
   if (!validator.isEmail(email)) {
-    throw new APIError(401, 'Invalid email address');
+    throw new APIError(401, "Invalid email address");
   }
 
   // find the user
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new APIError(404, 'User not found with this email');
+    throw new APIError(404, "User not found with this email");
   }
 
   // generate token
-  const resetToken = crypto.randomBytes(20).toString('hex');
+  const resetToken = crypto.randomBytes(20).toString("hex");
   const hashedResetToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(resetToken)
-    .digest('hex');
+    .digest("hex");
   const resetExpiry = Date.now() + 15 * 60 * 1000;
 
   user.forgetPasswordToken = hashedResetToken;
@@ -634,7 +634,7 @@ const generateResetPasswordToken = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Reset token generated', url));
+    .json(new APIResponse(200, "Reset token generated", url));
 });
 
 // reset password
@@ -644,7 +644,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   if (!password || !confirmPassword) {
     throw new APIError(
       400,
-      'Please provide both password and confirmPassword.'
+      "Please provide both password and confirmPassword.",
     );
   }
 
@@ -664,7 +664,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new APIResponse(200, 'Password has been reset successfully.', {}));
+    .json(new APIResponse(200, "Password has been reset successfully.", {}));
 });
 
 export {
