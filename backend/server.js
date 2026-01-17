@@ -86,7 +86,7 @@ app.use(hpp());
 
 // request middlewares
 app.use(express.json({ limit: "50kb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

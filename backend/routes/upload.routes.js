@@ -1,20 +1,20 @@
-import express from 'express';
-import path from 'path';
-import multer from 'multer';
-import { authMiddleware } from '../middlewares/authmiddleware.js';
+import express from "express";
+import path from "path";
+import multer from "multer";
+import { authMiddleware } from "../middlewares/authmiddleware.js";
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, './uploads');
+    cb(null, "./uploads");
   },
   filename(req, file, cb) {
     cb(
       null,
       `${file.fieldname}-${file.originalname}-${Date.now()}${path.extname(
-        file.originalname
-      )}`
+        file.originalname,
+      )}`,
     );
   },
 });
@@ -29,15 +29,15 @@ function fileFilter(req, file, cb) {
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Images only!'), false);
+    cb(new Error("Images only!"), false);
   }
 }
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage, fileFilter, limits: { fileSize: 8000000 } });
 // Update to accept multiple images with field name "images"
-const uploadMultipleImages = upload.array('images', 10);
+const uploadMultipleImages = upload.array("images", 10);
 
-router.post('/', authMiddleware, (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   uploadMultipleImages(req, res, function (err) {
     if (err) {
       return res.status(400).send({ message: err.message });
@@ -47,7 +47,7 @@ router.post('/', authMiddleware, (req, res) => {
     const imagePaths = req.files.map((file) => `/${file.path}`);
 
     res.status(200).send({
-      message: 'Images uploaded successfully',
+      message: "Images uploaded successfully",
       images: imagePaths,
     });
   });
